@@ -7,7 +7,7 @@ const StarsContainer = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 0;
+  z-index: 1;
   pointer-events: none;
 `;
 
@@ -15,7 +15,7 @@ const Star = styled.div`
   position: absolute;
   width: ${props => props.size}px;
   height: ${props => props.size}px;
-  background-color: white;
+  background-color: rgba(255, 255, 255, 0.8);
   border-radius: 50%;
   opacity: ${props => props.opacity};
   left: ${props => props.left}%;
@@ -34,7 +34,7 @@ const Stars = () => {
     left: Math.random() * 100,
     top: Math.random() * 100,
     size: Math.random() * 2 + 1,
-    opacity: Math.random() * 0.5 + 0.5,
+    opacity: Math.random() * 0.5 + 0.3,
   }));
 
   return (
