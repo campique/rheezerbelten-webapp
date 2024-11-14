@@ -3,8 +3,7 @@ import styled from 'styled-components';
 import { translations } from '../utils/translations';
 
 const MenuWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 1rem;
   width: 100%;
   max-width: 300px;
@@ -25,6 +24,7 @@ const OptionButton = styled.button`
   overflow: hidden;
   transform: ${props => props.rotation};
   background-color: ${props => props.bgColor};
+  width: 100%;
 
   &:hover {
     transform: scale(1.05) rotate(0deg);
@@ -82,67 +82,67 @@ const Menu = ({ currentLanguage, navigateToPage }) => {
     }
   };
 
+  if (showGames) {
+    return (
+      <MenuWrapper>
+        <GameItem 
+          bgColor="#00c853" 
+          rotation="rotate(-5deg)" 
+          onClick={() => navigateToPage('/games/connect-four')}
+        >
+          <GameEmoji>🔴🟡</GameEmoji>
+          <GameTitle>4 op een rij</GameTitle>
+        </GameItem>
+        <GameItem 
+          bgColor="#ff4081" 
+          rotation="rotate(5deg)" 
+          onClick={() => navigateToPage('/games/pancake-dobble')}
+        >
+          <GameEmoji>🥞🔍</GameEmoji>
+          <GameTitle>Pannenkoeken Dobble</GameTitle>
+        </GameItem>
+        <GameItem 
+          bgColor="#2979ff" 
+          rotation="rotate(-3deg)" 
+          onClick={() => navigateToPage('/games/pictionary')}
+        >
+          <GameEmoji>🎨✏️</GameEmoji>
+          <GameTitle>Pictionary</GameTitle>
+        </GameItem>
+        <OptionButton 
+          bgColor="#ffd54f" 
+          rotation="rotate(2deg)" 
+          onClick={() => setShowGames(false)}
+        >
+          Terug
+        </OptionButton>
+      </MenuWrapper>
+    );
+  }
+
   return (
     <MenuWrapper>
-      {showGames ? (
-        <>
-          <GameItem 
-            bgColor="#00c853" 
-            rotation="rotate(-5deg)" 
-            onClick={() => navigateToPage('/games/connect-four')}
-          >
-            <GameEmoji>🔴🟡</GameEmoji>
-            <GameTitle>4 op een rij</GameTitle>
-          </GameItem>
-          <GameItem 
-            bgColor="#ff4081" 
-            rotation="rotate(5deg)" 
-            onClick={() => navigateToPage('/games/pancake-dobble')}
-          >
-            <GameEmoji>🥞🔍</GameEmoji>
-            <GameTitle>Pannenkoeken Dobble</GameTitle>
-          </GameItem>
-          <GameItem 
-            bgColor="#2979ff" 
-            rotation="rotate(-3deg)" 
-            onClick={() => navigateToPage('/games/pictionary')}
-          >
-            <GameEmoji>🎨✏️</GameEmoji>
-            <GameTitle>Pictionary</GameTitle>
-          </GameItem>
-          <OptionButton 
-            bgColor="#ffd54f" 
-            rotation="rotate(2deg)" 
-            onClick={() => setShowGames(false)}
-          >
-            Terug
-          </OptionButton>
-        </>
-      ) : (
-        <>
-          <OptionButton 
-            bgColor="#00c853" 
-            rotation="rotate(-5deg)" 
-            onClick={() => handleClick('games')}
-          >
-            {translations[currentLanguage].games}
-          </OptionButton>
-          <OptionButton 
-            bgColor="#ff4081" 
-            rotation="rotate(5deg)" 
-            onClick={() => handleClick('placemat')}
-          >
-            {translations[currentLanguage].placemat}
-          </OptionButton>
-          <OptionButton 
-            bgColor="#2979ff" 
-            rotation="rotate(-3deg)" 
-            onClick={() => handleClick('chat')}
-          >
-            {translations[currentLanguage].chat}
-          </OptionButton>
-        </>
-      )}
+      <OptionButton 
+        bgColor="#00c853" 
+        rotation="rotate(-5deg)" 
+        onClick={() => handleClick('games')}
+      >
+        {translations[currentLanguage].games}
+      </OptionButton>
+      <OptionButton 
+        bgColor="#ff4081" 
+        rotation="rotate(5deg)" 
+        onClick={() => handleClick('placemat')}
+      >
+        {translations[currentLanguage].placemat}
+      </OptionButton>
+      <OptionButton 
+        bgColor="#2979ff" 
+        rotation="rotate(-3deg)" 
+        onClick={() => handleClick('chat')}
+      >
+        {translations[currentLanguage].chat}
+      </OptionButton>
     </MenuWrapper>
   );
 };
