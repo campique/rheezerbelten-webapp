@@ -85,6 +85,21 @@ const Button = styled.button`
   }
 `;
 
+const LoadingIndicator = styled.div`
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 20px 0;
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`;
+
 const ConnectFourOnline = () => {
   const navigate = useNavigate();
   const [socket, setSocket] = useState(null);
@@ -95,18 +110,28 @@ const ConnectFourOnline = () => {
   const [opponentName, setOpponentName] = useState('');
   const [status, setStatus] = useState('Verbinden met server...');
   const [showConfetti, setShowConfetti] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const socketUrl = process.env.NODE_ENV === 'production' 
-      ? 'https://rheezerbelten-webapp.herokuapp.com' 
-      : 'http://localhost:3000';
+    const socketUrl = 'https://rheezerbelten-webapp-01fff9a4a0a8.herokuapp.com';
+    console.log('Connecting to:', socketUrl);
 
-    const newSocket = io(socketUrl);
-    setSocket(newSocket);
+    const newSocket = io(socketUrl, {
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+    });
+
+    newSocket.on('connect_error', (error) => {
+      console.error('Connection error:', error);
+      setStatus('Verbindingsfout. Probeer de pagina te verversen.');
+      setIsLoading(false);
+    });
 
     newSocket.on('connect', () => {
       console.log('Connected to server');
       setStatus('Verbonden. Voer je naam in.');
+      setIsLoading(false);
       const playerName = prompt("Voer je naam in:");
       if (playerName) {
         newSocket.emit('setName', playerName);
@@ -176,6 +201,13 @@ const ConnectFourOnline = () => {
       setStatus(errorMessage);
     });
 
+    newSocket.on('disconnect', () => {
+      console.log('Disconnected from server');
+      setStatus('Verbinding verbroken. Probeer opnieuw verbinding te maken...');
+    });
+
+    setSocket(newSocket);
+
     return () => newSocket.close();
   }, []);
 
@@ -208,30 +240,36 @@ const ConnectFourOnline = () => {
       {showConfetti && <Confetti />}
       <h2>4 op een Rij - Online spel</h2>
       <Status>{status}</Status>
-      {!tableId && (
-        <div>
-          {tables.map((table, index) => (
-            <Button key={index} onClick={() => joinTable(index)} disabled={table.players === 2}>
-              Tafel {index + 1} ({table.players}/2 spelers)
-            </Button>
-          ))}
-        </div>
-      )}
-      {gameState && (
-        <Board>
-          {gameState.board.map((row, rowIndex) =>
-            row.map((cell, colIndex) => (
-              <Cell
-                key={`${rowIndex}-${colIndex}`}
-                player={cell}
-                onClick={() => handleCellClick(colIndex)}
-              />
-            ))
+      {isLoading ? (
+        <LoadingIndicator />
+      ) : (
+        <>
+          {!tableId && (
+            <div>
+              {tables.map((table, index) => (
+                <Button key={index} onClick={() => joinTable(index)} disabled={table.players === 2}>
+                  Tafel {index + 1} ({table.players}/2 spelers)
+                </Button>
+              ))}
+            </div>
           )}
-        </Board>
+          {gameState && (
+            <Board>
+              {gameState.board.map((row, rowIndex) =>
+                row.map((cell, colIndex) => (
+                  <Cell
+                    key={`${rowIndex}-${colIndex}`}
+                    player={cell}
+                    onClick={() => handleCellClick(colIndex)}
+                  />
+                ))
+              )}
+            </Board>
+          )}
+          {tableId !== null && <Button onClick={leaveTable}>Verlaat tafel</Button>}
+          <Button onClick={() => navigate('/games/connect-four')}>Terug naar opties</Button>
+        </>
       )}
-      {tableId !== null && <Button onClick={leaveTable}>Verlaat tafel</Button>}
-      <Button onClick={() => navigate('/games/connect-four')}>Terug naar opties</Button>
     </GameWrapper>
   );
 };
