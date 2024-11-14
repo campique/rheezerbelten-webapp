@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import Confetti from 'react-confetti';
 
 const GameWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
-  max-width: 600px;
+  max-width: 100%;
   margin: 0 auto;
 `;
 
@@ -19,6 +20,8 @@ const Board = styled.div`
   padding: 10px;
   border-radius: 10px;
   margin: 1rem 0;
+  width: 100%;
+  max-width: 100%;
 `;
 
 const Cell = styled.div`
@@ -78,61 +81,86 @@ const ConnectFourLocal = () => {
   const [currentPlayer, setCurrentPlayer] = useState('red');
   const [gameActive, setGameActive] = useState(true);
   const [status, setStatus] = useState('Rode speler is aan de beurt');
+  const [showConfetti, setShowConfetti] = useState(false);
 
   const handleCellClick = (col) => {
     if (!gameActive) return;
-    
-    const updatedState = [...gameState];
-    for (let row = 5; row >= 0; row--) {
-      if (updatedState[row][col] === '') {
-        updatedState[row][col] = currentPlayer;
-        setGameState(updatedState);
-        if (checkForWin(row, col, currentPlayer)) {
-          setStatus(`${currentPlayer === 'red' ? 'Rode' : 'Gele'} speler wint!`);
-          setGameActive(false);
-        } else if (checkForDraw()) {
-          setStatus('Gelijkspel!');
-          setGameActive(false);
-        } else {
-          setCurrentPlayer(currentPlayer === 'red' ? 'yellow' : 'red');
-          setStatus(`${currentPlayer === 'red' ? 'Gele' : 'Rode'} speler is aan de beurt`);
+    makeMove(col);
+  };
+
+  const makeMove = (col) => {
+    try {
+      const updatedState = [...gameState];
+      for (let row = 5; row >= 0; row--) {
+        if (updatedState[row][col] === '') {
+          updatedState[row][col] = currentPlayer;
+          setGameState(updatedState);
+          if (checkForWin(row, col, currentPlayer)) {
+            setStatus(`${currentPlayer === 'red' ? 'Rode' : 'Gele'} speler wint!`);
+            setGameActive(false);
+            setShowConfetti(true);
+          } else if (checkForDraw()) {
+            setStatus('Gelijkspel!');
+            setGameActive(false);
+          } else {
+            setCurrentPlayer(currentPlayer === 'red' ? 'yellow' : 'red');
+            setStatus(`${currentPlayer === 'red' ? 'Gele' : 'Rode'} speler is aan de beurt`);
+          }
+          break;
         }
-        break;
       }
+    } catch (error) {
+      console.error('Error in makeMove:', error);
+      setStatus('Er is een fout opgetreden. Probeer het opnieuw.');
     }
   };
 
-  const checkForWin = (row, col, player) => {
+  const checkForWin = (row, col, player, board = gameState) => {
     // Horizontaal
-    if (checkLine(row, 0, 0, 1, player)) return true;
-    // Verticaal
-    if (checkLine(0, col, 1, 0, player)) return true;
-    // Diagonaal /
-    if (checkLine(Math.max(row - Math.min(col, 3), 0), Math.max(col - Math.min(row, 3), 0), 1, 1, player)) return true;
-    // Diagonaal \
-    if (checkLine(Math.max(row - Math.min(6 - col, 3), 0), Math.min(col + Math.min(row, 3), 6), 1, -1, player)) return true;
-
-    return false;
-  };
-
-  const checkLine = (startRow, startCol, rowInc, colInc, player) => {
-    let count = 0;
-    for (let i = 0; i < 7; i++) {
-      const row = startRow + i * rowInc;
-      const col = startCol + i * colInc;
-      if (row < 0 || row >= 6 || col < 0 || col >= 7) break;
-      if (gameState[row][col] === player) {
-        count++;
-        if (count === 4) return true;
-      } else {
-        count = 0;
+    for (let r = 0; r < 6; r++) {
+      for (let c = 0; c < 4; c++) {
+        if (board[r][c] === player && board[r][c+1] === player && 
+            board[r][c+2] === player && board[r][c+3] === player) {
+          return true;
+        }
       }
     }
+
+    // Verticaal
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 7; c++) {
+        if (board[r][c] === player && board[r+1][c] === player && 
+            board[r+2][c] === player && board[r+3][c] === player) {
+          return true;
+        }
+      }
+    }
+
+    // Diagonaal /
+    for (let r = 3; r < 6; r++) {
+      for (let c = 0; c < 4; c++) {
+        if (board[r][c] === player && board[r-1][c+1] === player && 
+            board[r-2][c+2] === player && board[r-3][c+3] === player) {
+          return true;
+        }
+      }
+    }
+
+    // Diagonaal \
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 4; c++) {
+        if (board[r][c] === player && board[r+1][c+1] === player && 
+            board[r+2][c+2] === player && board[r+3][c+3] === player) {
+          return true;
+        }
+      }
+    }
+
     return false;
   };
 
-  const checkForDraw = () => {
-    return gameState.every(row => row.every(cell => cell !== ''));
+  const checkForDraw = (board = gameState) => {
+    return board.every(row => row.every(cell => cell !== ''));
   };
 
   const resetGame = () => {
@@ -140,11 +168,13 @@ const ConnectFourLocal = () => {
     setCurrentPlayer('red');
     setGameActive(true);
     setStatus('Rode speler is aan de beurt');
+    setShowConfetti(false);
   };
 
   return (
     <GameWrapper>
-      <h2>4 op een Rij - Lokaal</h2>
+      {showConfetti && <Confetti />}
+      <h2>4 op een Rij - Lokaal spel</h2>
       <Board>
         {gameState.map((row, rowIndex) =>
           row.map((cell, colIndex) => (
