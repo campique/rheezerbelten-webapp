@@ -15,6 +15,7 @@ const AppWrapper = styled.div`
   min-height: 100vh;
   padding: 2rem 1rem;
   position: relative;
+  z-index: 1;
 `;
 
 const ContentWrapper = styled.div`
@@ -24,6 +25,8 @@ const ContentWrapper = styled.div`
   justify-content: center;
   flex-grow: 1;
   padding: 2rem 1rem;
+  position: relative;
+  z-index: 2;
 `;
 
 function App() {
@@ -41,12 +44,12 @@ function App() {
   return (
     <>
       <GlobalStyle />
+      <Stars />
       <AppWrapper>
         <LanguageSwitch 
           currentLanguage={currentLanguage} 
           toggleLanguage={toggleLanguage}
         />
-        <Stars />
         <ContentWrapper>
           <Logo />
           <Mascot 
