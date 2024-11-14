@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
+import Confetti from 'react-confetti';
 
 const GameWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
-  max-width: 600px;
+  max-width: 100%;
   margin: 0 auto;
-  border: 2px solid red; // Toegevoegd om de grenzen van de component te zien
 `;
 
 const Board = styled.div`
@@ -21,12 +21,12 @@ const Board = styled.div`
   border-radius: 10px;
   margin: 1rem 0;
   width: 100%;
-  max-width: 500px; // Toegevoegd om een maximale breedte te geven
+  max-width: 100%;
 `;
 
 const Cell = styled.div`
-  width: 50px;
-  height: 50px;
+  width: 100%;
+  padding-bottom: 100%;
   background: white;
   border-radius: 50%;
   position: relative;
@@ -82,6 +82,7 @@ const ConnectFourVsKnof = () => {
   const [gameActive, setGameActive] = useState(true);
   const [status, setStatus] = useState('Jouw beurt');
   const [isKnofThinking, setIsKnofThinking] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
 
   useEffect(() => {
     console.log('Initial game state:', gameState);
@@ -114,6 +115,9 @@ const ConnectFourVsKnof = () => {
           if (checkForWin(row, col, currentPlayer)) {
             setStatus(currentPlayer === 'red' ? 'Je wint!' : 'Knof wint!');
             setGameActive(false);
+            if (currentPlayer === 'red') {
+              setShowConfetti(true);
+            }
           } else if (checkForDraw()) {
             setStatus('Gelijkspel!');
             setGameActive(false);
@@ -266,10 +270,12 @@ const ConnectFourVsKnof = () => {
     setCurrentPlayer('red');
     setGameActive(true);
     setStatus('Jouw beurt');
+    setShowConfetti(false);
   };
 
   return (
     <GameWrapper>
+      {showConfetti && <Confetti />}
       <h2>4 op een Rij - Tegen Knof</h2>
       <Board>
         {gameState.map((row, rowIndex) =>
