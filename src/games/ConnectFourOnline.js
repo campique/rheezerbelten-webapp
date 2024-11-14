@@ -74,176 +74,100 @@ const Button = styled.button`
     transform: scale(1.05);
     box-shadow: 0 6px 8px -2px rgba(0, 0, 0, 0.15);
   }
-
-  &:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-  }
 `;
 
-const Input = styled.input`
-  padding: 0.5rem;
-  margin: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 1rem;
-`;
-
-const ConnectFourOnline = () => {
+const ConnectFourMultiplayer = () => {
   const navigate = useNavigate();
   const [socket, setSocket] = useState(null);
-  const [playerName, setPlayerName] = useState('');
-  const [inLobby, setInLobby] = useState(false);
-  const [tables, setTables] = useState([]);
-  const [currentTable, setCurrentTable] = useState(null);
-  const [gameState, setGameState] = useState(null);
-  const [currentPlayer, setCurrentPlayer] = useState(null);
-  const [status, setStatus] = useState('');
+  const [gameState, setGameState] = useState(Array(6).fill().map(() => Array(7).fill('')));
+  const [currentPlayer, setCurrentPlayer] = useState('red');
+  const [gameActive, setGameActive] = useState(false);
+  const [status, setStatus] = useState('Wachten op tegenstander...');
   const [showConfetti, setShowConfetti] = useState(false);
+  const [playerColor, setPlayerColor] = useState(null);
 
   useEffect(() => {
-    const serverURL = process.env.REACT_APP_SERVER_URL || 'http://localhost:3001';
-    const newSocket = io(serverURL);
+    const newSocket = io('http://localhost:3001');
     setSocket(newSocket);
 
-    newSocket.on('connect', () => {
-      console.log('Connected to server');
+    newSocket.on('joinedTable', ({ playerId, opponentName }) => {
+      setPlayerColor(playerId);
+      setStatus(`Je speelt als ${playerId === 'red' ? 'rood' : 'geel'}. Wachten op ${opponentName || 'tegenstander'}...`);
     });
 
-    newSocket.on('connect_error', (error) => {
-      console.error('Connection error:', error);
-      setStatus('Verbindingsfout. Probeer de pagina te verversen.');
+    newSocket.on('gameStarted', (game) => {
+      setGameState(game.board);
+      setCurrentPlayer(game.currentPlayer);
+      setGameActive(true);
+      setStatus(`${game.currentPlayer === playerColor ? 'Jouw' : 'Tegenstander\'s'} beurt`);
     });
 
-    newSocket.on('lobbyUpdate', (updatedTables) => {
-      console.log('Received lobby update:', updatedTables);
-      setTables(updatedTables);
-    });
-
-    newSocket.on('gameStart', (initialGameState) => {
-      console.log('Game started:', initialGameState);
-      setCurrentTable(initialGameState.tableId);
-      setGameState(initialGameState.board);
-      setCurrentPlayer(initialGameState.currentPlayer);
-      setStatus(`${initialGameState.currentPlayer === 'red' ? 'Rode' : 'Gele'} speler is aan de beurt`);
-      setInLobby(false);
-    });
-
-    newSocket.on('gameUpdate', (updatedGameState) => {
-      console.log('Game updated:', updatedGameState);
-      setGameState(updatedGameState.board);
-      setCurrentPlayer(updatedGameState.currentPlayer);
-      setStatus(`${updatedGameState.currentPlayer === 'red' ? 'Rode' : 'Gele'} speler is aan de beurt`);
+    newSocket.on('gameUpdated', (game) => {
+      setGameState(game.board);
+      setCurrentPlayer(game.currentPlayer);
+      setStatus(`${game.currentPlayer === playerColor ? 'Jouw' : 'Tegenstander\'s'} beurt`);
     });
 
     newSocket.on('gameOver', ({ winner }) => {
-      console.log('Game over, winner:', winner);
+      setGameActive(false);
       if (winner === 'draw') {
         setStatus('Gelijkspel!');
       } else {
-        setStatus(`${winner === 'red' ? 'Rode' : 'Gele'} speler wint!`);
-        setShowConfetti(true);
+        setStatus(winner === playerColor ? 'Je hebt gewonnen!' : 'Je hebt verloren!');
+        setShowConfetti(winner === playerColor);
       }
-      setTimeout(() => {
-        const playAgain = window.confirm('Wil je nog een keer spelen?');
-        newSocket.emit('playAgainVote', { tableId: currentTable, vote: playAgain });
-      }, 1000);
+    });
+
+    newSocket.on('askRematch', () => {
+      // Implementeer hier de rematch logica
     });
 
     newSocket.on('returnToLobby', () => {
-      console.log('Returning to lobby');
-      setInLobby(true);
-      setCurrentTable(null);
-      setGameState(null);
-      setCurrentPlayer(null);
-      setStatus('');
-      setShowConfetti(false);
+      navigate('/games/connect-four');
+    });
+
+    newSocket.on('opponentLeft', () => {
+      setStatus('Tegenstander heeft het spel verlaten');
+      setGameActive(false);
     });
 
     return () => newSocket.close();
-  }, []);
-
-  const enterLobby = () => {
-    if (playerName && socket) {
-      console.log('Entering lobby with name:', playerName);
-      socket.emit('enterLobby', playerName);
-      setInLobby(true);
-    }
-  };
-
-  const joinTable = (tableId) => {
-    if (socket) {
-      console.log('Joining table:', tableId);
-      socket.emit('joinTable', tableId);
-    }
-  };
+  }, [navigate, playerColor]);
 
   const handleCellClick = (col) => {
-    if (gameState && currentPlayer && socket) {
-      console.log('Making move on column:', col);
-      socket.emit('makeMove', { tableId: currentTable, column: col });
-    }
+    if (!gameActive || currentPlayer !== playerColor) return;
+    socket.emit('makeMove', { tableId: 0, col });
   };
 
-  if (!inLobby && !currentTable) {
-    return (
-      <GameWrapper>
-        <h2>4 op een Rij - Online spel</h2>
-        <Input 
-          type="text" 
-          value={playerName} 
-          onChange={(e) => setPlayerName(e.target.value)} 
-          placeholder="Voer je naam in"
-        />
-        <Button onClick={enterLobby}>Speel online</Button>
-        <Button onClick={() => navigate('/games/connect-four')}>Terug naar opties</Button>
-      </GameWrapper>
-    );
-  }
+  const joinGame = () => {
+    socket.emit('joinTable', 0);
+  };
 
-  if (inLobby) {
-    return (
-      <GameWrapper>
-        <h2>Lobby</h2>
-        {tables.map((table) => (
-          <Button key={table.id} onClick={() => joinTable(table.id)} disabled={table.players.length === 2}>
-            Tafel {table.id} ({table.players.length}/2)
-          </Button>
-        ))}
-        <Button onClick={() => navigate('/games/connect-four')}>Terug naar opties</Button>
-      </GameWrapper>
-    );
-  }
-
-  if (gameState) {
-    return (
-      <GameWrapper>
-        {showConfetti && <Confetti />}
-        <h2>4 op een Rij - Online spel</h2>
-        <Board>
-          {gameState.map((row, rowIndex) =>
-            row.map((cell, colIndex) => (
-              <Cell
-                key={`${rowIndex}-${colIndex}`}
-                player={cell}
-                onClick={() => handleCellClick(colIndex)}
-              />
-            ))
-          )}
-        </Board>
-        <Status>{status}</Status>
-        <Button onClick={() => navigate('/games/connect-four')}>Terug naar opties</Button>
-      </GameWrapper>
-    );
-  }
+  const leaveGame = () => {
+    socket.emit('leaveTable', 0);
+    navigate('/games/connect-four');
+  };
 
   return (
     <GameWrapper>
-      <h2>4 op een Rij - Online spel</h2>
-      <Status>Laden...</Status>
-      <Button onClick={() => navigate('/games/connect-four')}>Terug naar opties</Button>
+      {showConfetti && <Confetti />}
+      <h2>4 op een Rij - Multiplayer</h2>
+      <Board>
+        {gameState.map((row, rowIndex) =>
+          row.map((cell, colIndex) => (
+            <Cell
+              key={`${rowIndex}-${colIndex}`}
+              player={cell}
+              onClick={() => handleCellClick(colIndex)}
+            />
+          ))
+        )}
+      </Board>
+      <Status>{status}</Status>
+      {!gameActive && <Button onClick={joinGame}>Spel starten</Button>}
+      <Button onClick={leaveGame}>Verlaat spel</Button>
     </GameWrapper>
   );
 };
 
-export default ConnectFourOnline;
+export default ConnectFourMultiplayer;
