@@ -1,0 +1,46 @@
+/* src/components/ConnectFour.css */
+.connect-four {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-gap: 5px;
+  background-color: #2196F3;
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.cell {
+  width: 50px;
+  height: 50px;
+  background: white;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.cell.red {
+  background-color: #F44336;
+}
+
+.cell.yellow {
+  background-color: #FFEB3B;
+}
+
+.status, .scoreboard {
+  margin-bottom: 10px;
+  font-size: 1.2rem;
+}
+
+.rematch-section {
+  margin-top: 20px;
+}
+
+.rematch-section button {
+  margin: 0 10px;
+  padding: 5px 10px;
+}
