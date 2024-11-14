@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 const StarsContainer = styled.div`
@@ -13,49 +13,37 @@ const StarsContainer = styled.div`
 
 const Star = styled.div`
   position: absolute;
+  width: ${props => props.size}px;
+  height: ${props => props.size}px;
   background-color: white;
   border-radius: 50%;
-  opacity: 0.8;
+  opacity: ${props => props.opacity};
+  left: ${props => props.left}%;
+  top: ${props => props.top}%;
   animation: twinkle 2s infinite;
 
   @keyframes twinkle {
-    0%, 100% { opacity: 0.8; }
-    50% { opacity: 0.5; }
+    0%, 100% { opacity: ${props => props.opacity}; }
+    50% { opacity: ${props => props.opacity * 0.5}; }
   }
 `;
 
 const Stars = () => {
-  const containerRef = useRef(null);
+  const starCount = 50;
+  const stars = Array.from({ length: starCount }, () => ({
+    left: Math.random() * 100,
+    top: Math.random() * 100,
+    size: Math.random() * 2 + 1,
+    opacity: Math.random() * 0.5 + 0.5,
+  }));
 
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const createStar = (index) => {
-      setTimeout(() => {
-        const star = document.createElement('div');
-        star.className = Star.styledComponentId;
-        star.style.width = `${Math.random() * 3 + 1}px`;
-        star.style.height = star.style.width;
-        star.style.left = `${Math.random() * 100}%`;
-        star.style.top = `${Math.random() * 100}%`;
-        star.style.animationDelay = `${Math.random() * 2}s`;
-        container.appendChild(star);
-      }, index * 50); // Add a small delay for each star
-    };
-
-    for (let i = 0; i < 50; i++) {
-      createStar(i);
-    }
-
-    return () => {
-      while (container.firstChild) {
-        container.removeChild(container.firstChild);
-      }
-    };
-  }, []);
-
-  return <StarsContainer ref={containerRef} />;
+  return (
+    <StarsContainer>
+      {stars.map((star, index) => (
+        <Star key={index} {...star} />
+      ))}
+    </StarsContainer>
+  );
 };
 
 export default Stars;
