@@ -7,10 +7,6 @@ import Stars from './components/Stars';
 import Logo from './components/Logo';
 import Mascot from './components/Mascot';
 import Menu from './components/Menu';
-import Games from './games/Games';
-import ConnectFour from './games/ConnectFour';
-import PancakeDobble from './games/PancakeDobble';
-import Pictionary from './games/Pictionary';
 
 const AppWrapper = styled.div`
   display: flex;
@@ -65,10 +61,6 @@ function AppContent() {
           />
           <Routes>
             <Route path="/" element={<div>Home Page</div>} />
-            <Route path="/games" element={<Games />} />
-            <Route path="/games/connect-four" element={<ConnectFour />} />
-            <Route path="/games/pancake-dobble" element={<PancakeDobble />} />
-            <Route path="/games/pictionary" element={<Pictionary />} />
           </Routes>
         </ContentWrapper>
       </AppWrapper>
