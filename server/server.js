@@ -1,198 +1,148 @@
 const express = require('express');
-const http = require('http');
-const socketIo = require('socket.io');
-const cors = require('cors');
-const path = require('path');
-
 const app = express();
-app.use(cors());
-app.use(express.json());
-
-// Serve static files from the React app
-app.use(express.static(path.join(__dirname, '../build')));
-
-const server = http.createServer(app);
-const io = socketIo(server, {
+const http = require('http').createServer(app);
+const io = require('socket.io')(http, {
   cors: {
-    origin: "*",
+    origin: "http://localhost:3000", // Pas dit aan naar de URL van je React app
     methods: ["GET", "POST"]
   }
 });
+const path = require('path');
 
-const PORT = process.env.PORT || 3001;
+app.use(express.static(path.join(__dirname, '..', 'build')));
 
-// Hulpfuncties
-const createEmptyBoard = () => Array(6).fill().map(() => Array(7).fill(''));
-
-const checkForWin = (board, row, col, player) => {
-  // Horizontaal, verticaal en diagonaal controleren
-  const directions = [[0, 1], [1, 0], [1, 1], [1, -1]];
-  return directions.some(([dx, dy]) => {
-    let count = 1;
-    for (let i = 1; i <= 3; i++) {
-      const newRow = row + i * dx;
-      const newCol = col + i * dy;
-      if (newRow < 0 || newRow >= 6 || newCol < 0 || newCol >= 7 || board[newRow][newCol] !== player) break;
-      count++;
-    }
-    for (let i = 1; i <= 3; i++) {
-      const newRow = row - i * dx;
-      const newCol = col - i * dy;
-      if (newRow < 0 || newRow >= 6 || newCol < 0 || newCol >= 7 || board[newRow][newCol] !== player) break;
-      count++;
-    }
-    return count >= 4;
-  });
-};
-
-const checkForDraw = (board) => board.every(row => row.every(cell => cell !== ''));
-
-// Spelstaat
-let tables = Array(10).fill().map((_, i) => ({
-  id: i,
-  players: [],
-  board: createEmptyBoard(),
-  currentPlayer: 'red',
-  gameActive: false
-}));
+const tables = Array(1).fill().map(() => ({ players: [], gameState: null, rematchVotes: [] }));
 
 io.on('connection', (socket) => {
-  console.log('New client connected');
+    console.log('A user connected');
 
-  socket.on('enterLobby', (playerName) => {
-    socket.playerName = playerName;
-    socket.emit('lobbyUpdate', tables.map(table => ({
-      id: table.id,
-      players: table.players.length
-    })));
-  });
+    socket.on('joinTable', (tableId) => {
+        if (tables[tableId].players.length < 2) {
+            tables[tableId].players.push({ id: socket.id });
+            socket.join(`table-${tableId}`);
 
-  socket.on('joinTable', (tableId) => {
-    const table = tables[tableId];
-    if (table && table.players.length < 2) {
-      socket.tableId = tableId;
-      table.players.push({
-        id: socket.id,
-        name: socket.playerName,
-        color: table.players.length === 0 ? 'red' : 'yellow'
-      });
-      socket.join(`table-${tableId}`);
-
-      if (table.players.length === 2) {
-        table.gameActive = true;
-        io.to(`table-${tableId}`).emit('gameStart', {
-          tableId,
-          board: table.board,
-          currentPlayer: table.currentPlayer
-        });
-      }
-
-      io.emit('lobbyUpdate', tables.map(table => ({
-        id: table.id,
-        players: table.players.length
-      })));
-    }
-  });
-
-  socket.on('makeMove', ({ tableId, column }) => {
-    const table = tables[tableId];
-    if (table && table.gameActive) {
-      const player = table.players.find(p => p.id === socket.id);
-      if (player && player.color === table.currentPlayer) {
-        for (let row = 5; row >= 0; row--) {
-          if (table.board[row][column] === '') {
-            table.board[row][column] = player.color;
-            if (checkForWin(table.board, row, column, player.color)) {
-              io.to(`table-${tableId}`).emit('gameOver', { winner: player.color });
-              table.gameActive = false;
-            } else if (checkForDraw(table.board)) {
-              io.to(`table-${tableId}`).emit('gameOver', { winner: 'draw' });
-              table.gameActive = false;
+            if (tables[tableId].players.length === 2) {
+                const [player1, player2] = tables[tableId].players;
+                io.to(player1.id).emit('joinedTable', { playerId: 'red', opponentName: 'Opponent' });
+                io.to(player2.id).emit('joinedTable', { playerId: 'yellow', opponentName: 'Opponent' });
+                
+                startNewGame(tableId);
             } else {
-              table.currentPlayer = table.currentPlayer === 'red' ? 'yellow' : 'red';
-              io.to(`table-${tableId}`).emit('gameUpdate', {
-                board: table.board,
-                currentPlayer: table.currentPlayer
-              });
+                socket.emit('joinedTable', { playerId: 'red', opponentName: '' });
             }
-            break;
-          }
         }
-      }
-    }
-  });
+    });
 
-  socket.on('playAgainVote', ({ tableId, vote }) => {
-    const table = tables[tableId];
-    if (table) {
-      const player = table.players.find(p => p.id === socket.id);
-      if (player) {
-        player.playAgainVote = vote;
-        if (table.players.every(p => p.playAgainVote !== undefined)) {
-          if (table.players.every(p => p.playAgainVote)) {
-            // Reset the game
-            table.board = createEmptyBoard();
-            table.currentPlayer = 'red';
-            table.gameActive = true;
-            table.players.forEach(p => delete p.playAgainVote);
-            io.to(`table-${tableId}`).emit('gameStart', {
-              tableId,
-              board: table.board,
-              currentPlayer: table.currentPlayer
-            });
-          } else {
-            // Return players to lobby
-            table.players.forEach(p => {
-              const playerSocket = io.sockets.sockets.get(p.id);
-              if (playerSocket) {
-                playerSocket.leave(`table-${tableId}`);
-                playerSocket.emit('returnToLobby');
-              }
-            });
-            table.players = [];
-            table.board = createEmptyBoard();
-            table.currentPlayer = 'red';
-            table.gameActive = false;
-            io.emit('lobbyUpdate', tables.map(table => ({
-              id: table.id,
-              players: table.players.length
-            })));
-          }
-        }
-      }
-    }
-  });
+    socket.on('makeMove', ({ tableId, col }) => {
+        const table = tables[tableId];
+        if (table && table.gameState) {
+            const playerIndex = table.players.findIndex(player => player.id === socket.id);
+            const playerColor = playerIndex === 0 ? 'red' : 'yellow';
+            
+            if (playerColor !== table.gameState.currentPlayer) {
+                return;
+            }
 
-  socket.on('disconnect', () => {
-    console.log('Client disconnected');
-    if (socket.tableId !== undefined) {
-      const table = tables[socket.tableId];
-      if (table) {
-        table.players = table.players.filter(p => p.id !== socket.id);
-        if (table.players.length === 0) {
-          table.board = createEmptyBoard();
-          table.currentPlayer = 'red';
-          table.gameActive = false;
-        } else if (table.gameActive) {
-          io.to(`table-${socket.tableId}`).emit('returnToLobby');
-          table.players = [];
-          table.board = createEmptyBoard();
-          table.currentPlayer = 'red';
-          table.gameActive = false;
+            const row = findLowestEmptyRow(table.gameState.board, col);
+            if (row !== -1) {
+                table.gameState.board[row][col] = playerColor;
+
+                if (checkWin(table.gameState.board, row, col)) {
+                    io.to(`table-${tableId}`).emit('gameUpdated', table.gameState);
+                    io.to(`table-${tableId}`).emit('gameOver', { winner: playerColor });
+                    askForRematch(tableId);
+                } else if (checkDraw(table.gameState.board)) {
+                    io.to(`table-${tableId}`).emit('gameUpdated', table.gameState);
+                    io.to(`table-${tableId}`).emit('gameOver', { winner: 'draw' });
+                    askForRematch(tableId);
+                } else {
+                    table.gameState.currentPlayer = table.gameState.currentPlayer === 'red' ? 'yellow' : 'red';
+                    io.to(`table-${tableId}`).emit('gameUpdated', table.gameState);
+                }
+            }
         }
-        io.emit('lobbyUpdate', tables.map(table => ({
-          id: table.id,
-          players: table.players.length
-        })));
-      }
-    }
-  });
+    });
+
+    socket.on('leaveTable', (tableId) => {
+        const table = tables[tableId];
+        if (table) {
+            table.players = table.players.filter(player => player.id !== socket.id);
+            socket.leave(`table-${tableId}`);
+            io.to(`table-${tableId}`).emit('opponentLeft');
+            resetTable(tableId);
+        }
+    });
+
+    socket.on('disconnect', () => {
+        console.log('User disconnected');
+        for (let i = 0; i < tables.length; i++) {
+            const table = tables[i];
+            const playerIndex = table.players.findIndex(player => player.id === socket.id);
+            if (playerIndex !== -1) {
+                table.players.splice(playerIndex, 1);
+                io.to(`table-${i}`).emit('opponentLeft');
+                resetTable(i);
+                break;
+            }
+        }
+    });
 });
 
-// The "catchall" handler: for any request that doesn't
-// match one above, send back React's index.html file.
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../build/index.html'));
-});
+function startNewGame(tableId) {
+    tables[tableId].gameState = {
+        board: Array(6).fill().map(() => Array(7).fill('')),
+        currentPlayer: 'red'
+    };
+    tables[tableId].rematchVotes = [null, null];
+    io.to(`table-${tableId}`).emit('gameStarted', tables[tableId].gameState);
+}
 
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+function resetTable(tableId) {
+    tables[tableId].gameState = null;
+    tables[tableId].rematchVotes = [];
+    tables[tableId].players = [];
+}
+
+function askForRematch(tableId) {
+    io.to(`table-${tableId}`).emit('askRematch');
+}
+
+function findLowestEmptyRow(board, col) {
+    for (let row = 5; row >= 0; row--) {
+        if (board[row][col] === '') {
+            return row;
+        }
+    }
+    return -1;
+}
+
+function checkWin(board, row, col) {
+    const player = board[row][col];
+    const directions = [[0, 1], [1, 0], [1, 1], [1, -1]];
+    
+    for (const [dx, dy] of directions) {
+        if (countPieces(board, row, col, dx, dy, player) + countPieces(board, row, col, -dx, -dy, player) - 1 >= 4) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function countPieces(board, row, col, dx, dy, player) {
+    let count = 0;
+    while (row >= 0 && row < 6 && col >= 0 && col < 7 && board[row][col] === player) {
+        count++;
+        row += dx;
+        col += dy;
+    }
+    return count;
+}
+
+function checkDraw(board) {
+    return board.every(row => row.every(cell => cell !== ''));
+}
+
+const PORT = process.env.PORT || 3001;
+http.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
