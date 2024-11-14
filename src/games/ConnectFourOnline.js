@@ -85,6 +85,14 @@ const Button = styled.button`
   }
 `;
 
+const Input = styled.input`
+  padding: 0.5rem;
+  margin: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+`;
+
 const LoadingIndicator = styled.div`
   border: 4px solid #f3f3f3;
   border-top: 4px solid #3498db;
@@ -107,6 +115,7 @@ const ConnectFourOnline = () => {
   const [gameState, setGameState] = useState(null);
   const [tableId, setTableId] = useState(null);
   const [playerId, setPlayerId] = useState(null);
+  const [playerName, setPlayerName] = useState('');
   const [opponentName, setOpponentName] = useState('');
   const [status, setStatus] = useState('Verbinden met server...');
   const [showConfetti, setShowConfetti] = useState(false);
@@ -114,28 +123,25 @@ const ConnectFourOnline = () => {
 
   useEffect(() => {
     const socketUrl = 'https://rheezerbelten-webapp-01fff9a4a0a8.herokuapp.com';
-    console.log('Connecting to:', socketUrl);
+    console.log('Attempting to connect to:', socketUrl);
 
     const newSocket = io(socketUrl, {
+      transports: ['websocket'],
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
-    });
-
-    newSocket.on('connect_error', (error) => {
-      console.error('Connection error:', error);
-      setStatus('Verbindingsfout. Probeer de pagina te verversen.');
-      setIsLoading(false);
     });
 
     newSocket.on('connect', () => {
       console.log('Connected to server');
       setStatus('Verbonden. Voer je naam in.');
       setIsLoading(false);
-      const playerName = prompt("Voer je naam in:");
-      if (playerName) {
-        newSocket.emit('setName', playerName);
-      }
+    });
+
+    newSocket.on('connect_error', (error) => {
+      console.error('Connection error:', error);
+      setStatus('Verbindingsfout. Probeer de pagina te verversen.');
+      setIsLoading(false);
     });
 
     newSocket.on('tablesUpdate', (updatedTables) => {
@@ -174,11 +180,6 @@ const ConnectFourOnline = () => {
       }
     });
 
-    newSocket.on('askRematch', () => {
-      const wantRematch = window.confirm('Wil je nog een keer spelen?');
-      newSocket.emit('rematchVote', { tableId, vote: wantRematch });
-    });
-
     newSocket.on('opponentLeft', () => {
       console.log('Opponent left');
       setStatus('Tegenstander heeft het spel verlaten.');
@@ -196,35 +197,35 @@ const ConnectFourOnline = () => {
       newSocket.emit('getTables');
     });
 
-    newSocket.on('tableJoinError', (errorMessage) => {
-      console.log('Table join error:', errorMessage);
-      setStatus(errorMessage);
-    });
-
-    newSocket.on('disconnect', () => {
-      console.log('Disconnected from server');
-      setStatus('Verbinding verbroken. Probeer opnieuw verbinding te maken...');
-    });
-
     setSocket(newSocket);
 
     return () => newSocket.close();
   }, []);
 
+  const setName = () => {
+    if (playerName && socket) {
+      console.log('Setting player name:', playerName);
+      socket.emit('setName', playerName);
+      socket.emit('getTables');
+    }
+  };
+
   const joinTable = (tableIndex) => {
-    console.log('Attempting to join table:', tableIndex);
-    socket.emit('joinTable', tableIndex);
+    if (socket) {
+      console.log('Attempting to join table:', tableIndex);
+      socket.emit('joinTable', tableIndex);
+    }
   };
 
   const handleCellClick = (col) => {
-    if (gameState && gameState.currentPlayer === playerId) {
+    if (socket && gameState && gameState.currentPlayer === playerId) {
       console.log('Making move on column:', col);
       socket.emit('makeMove', { tableId, col });
     }
   };
 
   const leaveTable = () => {
-    if (tableId !== null) {
+    if (socket && tableId !== null) {
       console.log('Leaving table:', tableId);
       socket.emit('leaveTable', tableId);
       setTableId(null);
@@ -235,6 +236,31 @@ const ConnectFourOnline = () => {
     }
   };
 
+  const renderLobby = () => (
+    <div>
+      <h3>Beschikbare tafels:</h3>
+      {tables.map((table, index) => (
+        <Button key={index} onClick={() => joinTable(index)} disabled={table.players === 2}>
+          Tafel {index + 1} ({table.players}/2 spelers)
+        </Button>
+      ))}
+    </div>
+  );
+
+  const renderGame = () => (
+    <Board>
+      {gameState.board.map((row, rowIndex) =>
+        row.map((cell, colIndex) => (
+          <Cell
+            key={`${rowIndex}-${colIndex}`}
+            player={cell}
+            onClick={() => handleCellClick(colIndex)}
+          />
+        ))
+      )}
+    </Board>
+  );
+
   return (
     <GameWrapper>
       {showConfetti && <Confetti />}
@@ -242,34 +268,25 @@ const ConnectFourOnline = () => {
       <Status>{status}</Status>
       {isLoading ? (
         <LoadingIndicator />
+      ) : !playerName ? (
+        <div>
+          <Input
+            type="text"
+            value={playerName}
+            onChange={(e) => setPlayerName(e.target.value)}
+            placeholder="Voer je naam in"
+          />
+          <Button onClick={setName}>Start</Button>
+        </div>
+      ) : !tableId ? (
+        renderLobby()
       ) : (
         <>
-          {!tableId && (
-            <div>
-              {tables.map((table, index) => (
-                <Button key={index} onClick={() => joinTable(index)} disabled={table.players === 2}>
-                  Tafel {index + 1} ({table.players}/2 spelers)
-                </Button>
-              ))}
-            </div>
-          )}
-          {gameState && (
-            <Board>
-              {gameState.board.map((row, rowIndex) =>
-                row.map((cell, colIndex) => (
-                  <Cell
-                    key={`${rowIndex}-${colIndex}`}
-                    player={cell}
-                    onClick={() => handleCellClick(colIndex)}
-                  />
-                ))
-              )}
-            </Board>
-          )}
-          {tableId !== null && <Button onClick={leaveTable}>Verlaat tafel</Button>}
-          <Button onClick={() => navigate('/games/connect-four')}>Terug naar opties</Button>
+          {gameState ? renderGame() : <p>Wachten op tegenstander...</p>}
+          <Button onClick={leaveTable}>Verlaat tafel</Button>
         </>
       )}
+      <Button onClick={() => navigate('/games/connect-four')}>Terug naar opties</Button>
     </GameWrapper>
   );
 };
