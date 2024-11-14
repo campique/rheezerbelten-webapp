@@ -102,7 +102,8 @@ const ConnectFourOnline = () => {
   const [showConfetti, setShowConfetti] = useState(false);
 
   useEffect(() => {
-    const newSocket = io('https://rheezerbelten-webapp-01fff9a4a0a8.herokuapp.com');
+    const serverURL = process.env.REACT_APP_SERVER_URL || 'http://localhost:3001';
+    const newSocket = io(serverURL);
     setSocket(newSocket);
 
     newSocket.on('connect', () => {
