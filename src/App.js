@@ -7,7 +7,10 @@ import Stars from './components/Stars';
 import Logo from './components/Logo';
 import Mascot from './components/Mascot';
 import Menu from './components/Menu';
-import ConnectFour from './games/ConnectFour';
+import ConnectFourOptions from './components/ConnectFourOptions';
+import ConnectFourLocal from './components/ConnectFourLocal';
+import ConnectFourVsKnof from './components/ConnectFourVsKnof';
+import ConnectFourOnline from './components/ConnectFourOnline';
 import PancakeDobble from './games/PancakeDobble';
 import Pictionary from './games/Pictionary';
 
@@ -71,7 +74,10 @@ function AppContent() {
         <ContentWrapper>
           <Routes>
             <Route path="/" element={<Home currentLanguage={currentLanguage} navigateToPage={navigateToPage} />} />
-            <Route path="/games/connect-four" element={<ConnectFour />} />
+            <Route path="/games/connect-four" element={<ConnectFourOptions currentLanguage={currentLanguage} />} />
+            <Route path="/games/connect-four/local" element={<ConnectFourLocal />} />
+            <Route path="/games/connect-four/vs-knof" element={<ConnectFourVsKnof />} />
+            <Route path="/games/connect-four/online" element={<ConnectFourOnline />} />
             <Route path="/games/pancake-dobble" element={<PancakeDobble />} />
             <Route path="/games/pictionary" element={<Pictionary />} />
           </Routes>
