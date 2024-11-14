@@ -7,10 +7,10 @@ import Stars from './components/Stars';
 import Logo from './components/Logo';
 import Mascot from './components/Mascot';
 import Menu from './components/Menu';
-import ConnectFourOptions from './components/ConnectFourOptions';
-import ConnectFourLocal from './components/ConnectFourLocal';
-import ConnectFourVsKnof from './components/ConnectFourVsKnof';
-import ConnectFourOnline from './components/ConnectFourOnline';
+import ConnectFourOptions from './games/ConnectFourOptions';
+import ConnectFourLocal from './games/ConnectFourLocal';
+import ConnectFourVsKnof from './games/ConnectFourVsKnof';
+import ConnectFourOnline from './games/ConnectFourOnline';
 import PancakeDobble from './games/PancakeDobble';
 import Pictionary from './games/Pictionary';
 
