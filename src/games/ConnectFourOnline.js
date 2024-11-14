@@ -81,7 +81,7 @@ const Input = styled.input`
   margin: 0.5rem;
 `;
 
-const ConnectFour = () => {
+const ConnectFourOnline = () => {
   const navigate = useNavigate();
   const [socket, setSocket] = useState(null);
   const [gameState, setGameState] = useState(Array(6).fill().map(() => Array(7).fill('')));
@@ -91,31 +91,35 @@ const ConnectFour = () => {
   const [playerName, setPlayerName] = useState('');
   const [showLobby, setShowLobby] = useState(true);
   const [tables, setTables] = useState([]);
+  const [tableId, setTableId] = useState(null);
+  const [askingRematch, setAskingRematch] = useState(false);
 
   useEffect(() => {
-    const newSocket = io(process.env.REACT_APP_SOCKET_URL || 'https://your-heroku-app.herokuapp.com');
+    const newSocket = io(process.env.REACT_APP_SOCKET_URL || 'http://localhost:3000');
     setSocket(newSocket);
 
     newSocket.on('tablesUpdate', (updatedTables) => {
       setTables(updatedTables);
     });
 
-    newSocket.on('joinedTable', ({ playerId, opponentName }) => {
+    newSocket.on('joinedTable', ({ tableId, playerId, opponentName }) => {
       setCurrentPlayer(playerId);
+      setTableId(tableId);
       setShowLobby(false);
+      setStatus(opponentName ? `Wachten op start van het spel` : `Wachten op tegenstander`);
     });
 
     newSocket.on('gameStarted', (game) => {
       setGameState(game.board);
       setCurrentPlayer(game.currentPlayer);
       setGameActive(true);
-      setStatus(`${game.currentPlayer === 'red' ? 'Jouw' : 'Tegenstander\'s'} beurt`);
+      setStatus(`${game.currentPlayer === currentPlayer ? 'Jouw' : 'Tegenstander\'s'} beurt`);
     });
 
     newSocket.on('gameUpdated', (game) => {
       setGameState(game.board);
       setCurrentPlayer(game.currentPlayer);
-      setStatus(`${game.currentPlayer === 'red' ? 'Jouw' : 'Tegenstander\'s'} beurt`);
+      setStatus(`${game.currentPlayer === currentPlayer ? 'Jouw' : 'Tegenstander\'s'} beurt`);
     });
 
     newSocket.on('gameOver', ({ winner }) => {
@@ -124,7 +128,8 @@ const ConnectFour = () => {
     });
 
     newSocket.on('askRematch', () => {
-      // Implement rematch logic here
+      setAskingRematch(true);
+      setStatus('Wil je nog een keer spelen?');
     });
 
     newSocket.on('returnToLobby', () => {
@@ -132,14 +137,21 @@ const ConnectFour = () => {
       setGameState(Array(6).fill().map(() => Array(7).fill('')));
       setGameActive(false);
       setStatus('');
+      setTableId(null);
+      setAskingRematch(false);
+    });
+
+    newSocket.on('opponentLeft', () => {
+      setStatus('Tegenstander heeft het spel verlaten');
+      setGameActive(false);
     });
 
     return () => newSocket.close();
   }, []);
 
   const handleCellClick = (col) => {
-    if (!gameActive || currentPlayer !== 'red') return;
-    socket.emit('makeMove', { tableId: 0, col });
+    if (!gameActive || currentPlayer !== gameState.currentPlayer) return;
+    socket.emit('makeMove', { tableId, col });
   };
 
   const handleSetName = () => {
@@ -154,19 +166,26 @@ const ConnectFour = () => {
   };
 
   const handleLeaveTable = () => {
-    socket.emit('leaveTable', 0);
+    socket.emit('leaveTable', tableId);
     setShowLobby(true);
   };
 
   const handleReturnToMenu = () => {
-    socket.emit('leaveTable', 0);
-    navigate('/');
+    if (tableId !== null) {
+      socket.emit('leaveTable', tableId);
+    }
+    navigate('/games/connect-four');
+  };
+
+  const handleRematchVote = (vote) => {
+    socket.emit('rematchVote', { tableId, vote });
+    setAskingRematch(false);
   };
 
   if (showLobby) {
     return (
       <GameWrapper>
-        <h2>4 op een Rij - Lobby</h2>
+        <h2>4 op een Rij - Online Lobby</h2>
         {playerName ? (
           <>
             <div>Beschikbare tafels:</div>
@@ -195,7 +214,7 @@ const ConnectFour = () => {
 
   return (
     <GameWrapper>
-      <h2>4 op een Rij</h2>
+      <h2>4 op een Rij - Online</h2>
       <Board>
         {gameState.map((row, rowIndex) =>
           row.map((cell, colIndex) => (
@@ -208,10 +227,19 @@ const ConnectFour = () => {
         )}
       </Board>
       <Status>{status}</Status>
-      <Button onClick={handleLeaveTable}>Verlaat tafel</Button>
-      <Button onClick={handleReturnToMenu}>Terug naar hoofdmenu</Button>
+      {askingRematch ? (
+        <>
+          <Button onClick={() => handleRematchVote(true)}>Ja, speel opnieuw</Button>
+          <Button onClick={() => handleRematchVote(false)}>Nee, terug naar lobby</Button>
+        </>
+      ) : (
+        <>
+          <Button onClick={handleLeaveTable}>Verlaat tafel</Button>
+          <Button onClick={handleReturnToMenu}>Terug naar hoofdmenu</Button>
+        </>
+      )}
     </GameWrapper>
   );
 };
 
-export default ConnectFour;
+export default ConnectFourOnline;
