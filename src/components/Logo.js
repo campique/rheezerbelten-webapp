@@ -4,7 +4,7 @@ import styled from 'styled-components';
 const LogoImage = styled.img`
   width: 180px;
   margin-bottom: 1rem;
-  margin-top: -2rem;
+  margin-top: -3rem;
 `;
 
 const Logo = () => {
