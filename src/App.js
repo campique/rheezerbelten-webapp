@@ -31,6 +31,22 @@ const ContentWrapper = styled.div`
   padding: 2rem 1rem;
 `;
 
+function Home({ currentLanguage, navigateToPage }) {
+  return (
+    <>
+      <Logo />
+      <Mascot 
+        currentLanguage={currentLanguage}
+        currentPage="/"
+      />
+      <Menu 
+        currentLanguage={currentLanguage}
+        navigateToPage={navigateToPage}
+      />
+    </>
+  );
+}
+
 function AppContent() {
   const [currentLanguage, setCurrentLanguage] = useState('nl');
   const navigate = useNavigate();
@@ -53,17 +69,8 @@ function AppContent() {
           toggleLanguage={toggleLanguage}
         />
         <ContentWrapper>
-          <Logo />
-          <Mascot 
-            currentLanguage={currentLanguage}
-            currentPage={window.location.pathname}
-          />
-          <Menu 
-            currentLanguage={currentLanguage}
-            navigateToPage={navigateToPage}
-          />
           <Routes>
-            <Route path="/" element={<div></div>} />
+            <Route path="/" element={<Home currentLanguage={currentLanguage} navigateToPage={navigateToPage} />} />
             <Route path="/games/connect-four" element={<ConnectFour />} />
             <Route path="/games/pancake-dobble" element={<PancakeDobble />} />
             <Route path="/games/pictionary" element={<Pictionary />} />
