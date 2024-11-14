@@ -29,8 +29,6 @@ const ContentWrapper = styled.div`
   justify-content: flex-start;
   flex-grow: 1;
   padding: 2rem 1rem;
-  min-height: 0;
-  overflow-y: auto;
 `;
 
 function AppContent() {
