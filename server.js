@@ -23,7 +23,6 @@ io.on('connection', (socket) => {
     });
 
     socket.on('getTables', () => {
-        console.log('getTables called, sending:', tables.map(table => ({ players: table.players.length })));
         socket.emit('tablesUpdate', tables.map(table => ({ players: table.players.length })));
     });
 
@@ -161,22 +160,27 @@ function findLowestEmptyRow(board, col) {
 
 function checkWin(board, row, col) {
     const directions = [[0, 1], [1, 0], [1, 1], [1, -1]];
-    const player = board[row][col];
+    const color = board[row][col];
 
     for (const [dx, dy] of directions) {
-        if (countPieces(board, row, col, dx, dy, player) + countPieces(board, row, col, -dx, -dy, player) - 1 >= 4) {
+        if (countConsecutive(board, row, col, dx, dy, color) >= 4) {
             return true;
         }
     }
     return false;
 }
 
-function countPieces(board, row, col, dx, dy, player) {
+function countConsecutive(board, row, col, dx, dy, color) {
     let count = 0;
-    while (row >= 0 && row < 6 && col >= 0 && col < 7 && board[row][col] === player) {
-        count++;
-        row += dx;
-        col += dy;
+    for (let i = -3; i <= 3; i++) {
+        const newRow = row + i * dx;
+        const newCol = col + i * dy;
+        if (newRow >= 0 && newRow < 6 && newCol >= 0 && newCol < 7 && board[newRow][newCol] === color) {
+            count++;
+            if (count === 4) return count;
+        } else {
+            count = 0;
+        }
     }
     return count;
 }
