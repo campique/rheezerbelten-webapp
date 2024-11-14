@@ -29,6 +29,7 @@ const ContentWrapper = styled.div`
   justify-content: center;
   flex-grow: 1;
   padding: 2rem 1rem;
+  height: 100vh; // Toegevoegde vaste hoogte
 `;
 
 function AppContent() {
