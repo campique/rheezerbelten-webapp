@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { GlobalStyle } from './styles/GlobalStyle';
 import LanguageSwitch from './components/LanguageSwitch';
@@ -59,9 +59,6 @@ function AppContent() {
             currentLanguage={currentLanguage}
             navigateToPage={navigateToPage}
           />
-          <Routes>
-            <Route path="/" element={<div>Home Page</div>} />
-          </Routes>
         </ContentWrapper>
       </AppWrapper>
     </>
