@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import io from 'socket.io-client';
+import { useNavigate } from 'react-router-dom';
 
 const GameWrapper = styled.div`
   display: flex;
@@ -72,7 +73,16 @@ const Button = styled.button`
   }
 `;
 
+const Input = styled.input`
+  padding: 0.8rem 1.2rem;
+  border-radius: 9999px;
+  border: 1px solid #2196F3;
+  font-size: 1rem;
+  margin: 0.5rem;
+`;
+
 const ConnectFour = () => {
+  const navigate = useNavigate();
   const [socket, setSocket] = useState(null);
   const [gameState, setGameState] = useState(Array(6).fill().map(() => Array(7).fill('')));
   const [currentPlayer, setCurrentPlayer] = useState('');
@@ -148,6 +158,11 @@ const ConnectFour = () => {
     setShowLobby(true);
   };
 
+  const handleReturnToMenu = () => {
+    socket.emit('leaveTable', 0);
+    navigate('/');
+  };
+
   if (showLobby) {
     return (
       <GameWrapper>
@@ -160,16 +175,18 @@ const ConnectFour = () => {
                 Tafel {index + 1}: {table.players}/2 spelers
               </Button>
             ))}
+            <Button onClick={handleReturnToMenu}>Terug naar hoofdmenu</Button>
           </>
         ) : (
           <>
-            <input
+            <Input
               type="text"
               value={playerName}
               onChange={(e) => setPlayerName(e.target.value)}
               placeholder="Voer je naam in"
             />
             <Button onClick={handleSetName}>Start</Button>
+            <Button onClick={handleReturnToMenu}>Terug naar hoofdmenu</Button>
           </>
         )}
       </GameWrapper>
@@ -192,6 +209,7 @@ const ConnectFour = () => {
       </Board>
       <Status>{status}</Status>
       <Button onClick={handleLeaveTable}>Verlaat tafel</Button>
+      <Button onClick={handleReturnToMenu}>Terug naar hoofdmenu</Button>
     </GameWrapper>
   );
 };
