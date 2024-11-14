@@ -26,10 +26,11 @@ const ContentWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   flex-grow: 1;
   padding: 2rem 1rem;
-  height: 100vh; // Toegevoegde vaste hoogte
+  min-height: 0;
+  overflow-y: auto;
 `;
 
 function AppContent() {
