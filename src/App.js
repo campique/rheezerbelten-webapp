@@ -14,6 +14,8 @@ import Pictionary from './games/Pictionary';
 const AppWrapper = styled.div`
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   min-height: 100vh;
   padding: 2rem 1rem;
   position: relative;
@@ -24,26 +26,9 @@ const ContentWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  flex-grow: 1;
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-`;
-
-const TopSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-`;
-
-const GameSection = styled.div`
-  width: 100%;
-  flex-grow: 1;
-  display: flex;
   justify-content: center;
-  align-items: flex-start;
-  padding-top: 2rem;
+  flex-grow: 1;
+  padding: 2rem 1rem;
 `;
 
 function AppContent() {
@@ -63,30 +48,27 @@ function AppContent() {
       <GlobalStyle />
       <Stars />
       <AppWrapper>
+        <LanguageSwitch 
+          currentLanguage={currentLanguage} 
+          toggleLanguage={toggleLanguage}
+        />
         <ContentWrapper>
-          <TopSection>
-            <LanguageSwitch 
-              currentLanguage={currentLanguage} 
-              toggleLanguage={toggleLanguage}
-            />
-            <Logo />
-            <Mascot 
-              currentLanguage={currentLanguage}
-              currentPage={window.location.pathname}
-            />
-            <Menu 
-              currentLanguage={currentLanguage}
-              navigateToPage={navigateToPage}
-            />
-          </TopSection>
-          <GameSection>
-            <Routes>
-              <Route path="/" element={<div></div>} />
-              <Route path="/games/connect-four" element={<ConnectFour />} />
-              <Route path="/games/pancake-dobble" element={<PancakeDobble />} />
-              <Route path="/games/pictionary" element={<Pictionary />} />
-            </Routes>
-          </GameSection>
+          <Logo />
+          <Mascot 
+            currentLanguage={currentLanguage}
+            currentPage={window.location.pathname}
+          />
+          <Menu 
+            currentLanguage={currentLanguage}
+            navigateToPage={navigateToPage}
+          />
+          <Routes>
+            <Route path="/" element={<div></div>} />
+            <Route path="/games/connect-four" element={<ConnectFour />} />
+            <Route path="/games/pancake-dobble" element={<PancakeDobble />} />
+            <Route path="/games/pictionary" element={<Pictionary />} />
+            {/* Add routes for placemat and chat if needed */}
+          </Routes>
         </ContentWrapper>
       </AppWrapper>
     </>
