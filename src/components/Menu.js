@@ -91,7 +91,7 @@ const Menu = ({ currentLanguage, navigateToPage }) => {
           onClick={() => navigateToPage('/games/connect-four')}
         >
           <GameEmoji>🔴🟡</GameEmoji>
-          <GameTitle>4 op een rij</GameTitle>
+          <GameTitle>{translations[currentLanguage].connectFour}</GameTitle>
         </GameItem>
         <GameItem 
           bgColor="#ff4081" 
@@ -99,7 +99,7 @@ const Menu = ({ currentLanguage, navigateToPage }) => {
           onClick={() => navigateToPage('/games/pancake-dobble')}
         >
           <GameEmoji>🥞🔍</GameEmoji>
-          <GameTitle>Pannenkoeken Dobble</GameTitle>
+          <GameTitle>{translations[currentLanguage].pancakeDobble}</GameTitle>
         </GameItem>
         <GameItem 
           bgColor="#2979ff" 
@@ -107,14 +107,14 @@ const Menu = ({ currentLanguage, navigateToPage }) => {
           onClick={() => navigateToPage('/games/pictionary')}
         >
           <GameEmoji>🎨✏️</GameEmoji>
-          <GameTitle>Pictionary</GameTitle>
+          <GameTitle>{translations[currentLanguage].pictionary}</GameTitle>
         </GameItem>
         <OptionButton 
           bgColor="#ffd54f" 
           rotation="rotate(2deg)" 
           onClick={() => setShowGames(false)}
         >
-          Terug
+          {translations[currentLanguage].back}
         </OptionButton>
       </MenuWrapper>
     );
