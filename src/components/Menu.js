@@ -77,8 +77,8 @@ const translations = {
     pictionary: "Pictionary",
     back: "Terug",
     games: "Spelletjes",
-    placemat: "Placemat",
-    chat: "Chat"
+    interactivePlacemat: "Interactieve placemat",
+    talkWithKnof: "Praten met Knof"
   },
   de: {
     connectFour: "Vier gewinnt",
@@ -86,8 +86,8 @@ const translations = {
     pictionary: "Montagsmaler",
     back: "Zurück",
     games: "Spiele",
-    placemat: "Tischset",
-    chat: "Chat"
+    interactivePlacemat: "Interaktives Tischset",
+    talkWithKnof: "Mit Knof sprechen"
   }
 };
 
@@ -147,21 +147,21 @@ const Menu = ({ currentLanguage, navigateToPage }) => {
         rotation="rotate(-5deg)" 
         onClick={() => handleClick('games')}
       >
-        {translations[currentLanguage].games}
+        🎮 {translations[currentLanguage].games}
       </OptionButton>
       <OptionButton 
         bgColor="#ff4081" 
         rotation="rotate(5deg)" 
         onClick={() => handleClick('placemat')}
       >
-        {translations[currentLanguage].placemat}
+        🍽️ {translations[currentLanguage].interactivePlacemat}
       </OptionButton>
       <OptionButton 
         bgColor="#2979ff" 
         rotation="rotate(-3deg)" 
         onClick={() => handleClick('chat')}
       >
-        {translations[currentLanguage].chat}
+        🗨️ {translations[currentLanguage].talkWithKnof}
       </OptionButton>
     </MenuWrapper>
   );
