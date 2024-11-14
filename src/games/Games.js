@@ -7,6 +7,8 @@ const GamesContainer = styled.div`
   flex-direction: column;
   align-items: center;
   padding: 2rem;
+  background-color: #f0f0f0;
+  min-height: 100vh;
 `;
 
 const GamesList = styled.div`
@@ -23,6 +25,7 @@ const GameItem = styled(Link)`
   text-align: center;
   text-decoration: none;
   color: #333;
+  background-color: white;
   border: 2px solid #ddd;
   border-radius: 8px;
   padding: 1rem;
@@ -42,7 +45,23 @@ const GameTitle = styled.h3`
   margin-top: 1rem;
 `;
 
-const Games = () => {
+const BackButton = styled.button`
+  margin-top: 2rem;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background-color: #45a049;
+  }
+`;
+
+const Games = ({ onBack }) => {
   return (
     <GamesContainer>
       <h2>Spelletjes</h2>
@@ -60,6 +79,7 @@ const Games = () => {
           <GameTitle>Pictionary</GameTitle>
         </GameItem>
       </GamesList>
+      <BackButton onClick={onBack}>Terug naar hoofdmenu</BackButton>
     </GamesContainer>
   );
 };
