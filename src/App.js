@@ -7,7 +7,7 @@ import Stars from './components/Stars';
 import Logo from './components/Logo';
 import Mascot from './components/Mascot';
 import Menu from './components/Menu';
-import Games from './components/Games';
+import Games from './games/Games';
 import ConnectFour from './games/ConnectFour';
 import PancakeDobble from './games/PancakeDobble';
 import Pictionary from './games/Pictionary';
