@@ -2,28 +2,53 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 
 const MenuWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  background-color: #f0f0f0;
+  display: grid;
+  gap: 1rem;
+  width: 100%;
+  max-width: 300px;
+  margin-bottom: 2rem;
 `;
 
 const OptionButton = styled.button`
-  background-color: ${props => props.bgColor};
   color: white;
-  font-size: 24px;
-  padding: 15px 30px;
-  margin: 10px;
+  font-weight: bold;
+  padding: 1rem 1.5rem;
+  border-radius: 9999px;
   border: none;
-  border-radius: 10px;
   cursor: pointer;
-  transform: ${props => props.rotation};
+  font-size: 1.4rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  transform: ${props => props.rotation};
+  background-color: ${props => props.bgColor};
+  width: 100%;
 
   &:hover {
-    transform: ${props => props.rotation} scale(1.1);
+    transform: scale(1.05) rotate(0deg);
+    box-shadow: 0 6px 8px -2px rgba(0, 0, 0, 0.15);
+  }
+
+  &:active {
+    transform: scale(0.95) rotate(0deg);
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: rotate(45deg);
+    transition: all 0.3s ease;
+  }
+
+  &:hover::after {
+    left: 100%;
+    top: 100%;
   }
 `;
 
@@ -32,18 +57,17 @@ const GameItem = styled(OptionButton)`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 200px;
-  height: 200px;
+  padding: 1rem 1.5rem;
+  height: auto;
 `;
 
 const GameEmoji = styled.span`
-  font-size: 48px;
-  margin-bottom: 10px;
+  font-size: 24px;
+  margin-bottom: 5px;
 `;
 
 const GameTitle = styled.span`
-  font-size: 18px;
-  text-align: center;
+  font-size: 16px;
 `;
 
 const translations = {
