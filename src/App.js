@@ -67,7 +67,6 @@ function AppContent() {
             <Route path="/games/connect-four" element={<ConnectFour />} />
             <Route path="/games/pancake-dobble" element={<PancakeDobble />} />
             <Route path="/games/pictionary" element={<Pictionary />} />
-            {/* Add routes for placemat and chat if needed */}
           </Routes>
         </ContentWrapper>
       </AppWrapper>
