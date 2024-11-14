@@ -117,7 +117,6 @@ const ConnectFourVsKnof = () => {
   };
 
   const findBestMove = () => {
-    // Implementatie van minimax algoritme met alpha-beta pruning
     const depth = 5;
     let bestScore = -Infinity;
     let bestMove = 0;
@@ -157,8 +156,8 @@ const ConnectFourVsKnof = () => {
               board[row][col] = 'yellow';
               const evaluation = minimax(board, depth - 1, false, alpha, beta);
               board[row][col] = '';
-              maxEval = Math.max(maxEval, eval);
-              alpha = Math.max(alpha, eval);
+              maxEval = Math.max(maxEval, evaluation);
+              alpha = Math.max(alpha, evaluation);
               if (beta <= alpha) break;
               break;
             }
@@ -173,10 +172,10 @@ const ConnectFourVsKnof = () => {
           for (let row = 5; row >= 0; row--) {
             if (board[row][col] === '') {
               board[row][col] = 'red';
-              const eval = minimax(board, depth - 1, true, alpha, beta);
+              const evaluation = minimax(board, depth - 1, true, alpha, beta);
               board[row][col] = '';
-              minEval = Math.min(minEval, eval);
-              beta = Math.min(beta, eval);
+              minEval = Math.min(minEval, evaluation);
+              beta = Math.min(beta, evaluation);
               if (beta <= alpha) break;
               break;
             }
