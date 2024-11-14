@@ -58,8 +58,8 @@ const GameItem = styled(OptionButton)`
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  padding: 1rem 1.5rem;
   height: auto;
-  padding: 0.5rem 1rem;
 `;
 
 const GameEmoji = styled.span`
