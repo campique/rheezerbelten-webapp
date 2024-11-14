@@ -105,17 +105,22 @@ const ConnectFourOnline = () => {
     setSocket(newSocket);
 
     newSocket.on('connect', () => {
+      console.log('Connected to server');
       setStatus('Verbonden. Voer je naam in.');
       const playerName = prompt("Voer je naam in:");
-      newSocket.emit('setName', playerName);
+      if (playerName) {
+        newSocket.emit('setName', playerName);
+      }
     });
 
     newSocket.on('tablesUpdate', (updatedTables) => {
+      console.log('Received tables update:', updatedTables);
       setTables(updatedTables);
       setStatus('Kies een tafel om mee te doen');
     });
 
     newSocket.on('joinedTable', ({ tableId, playerId, opponentName }) => {
+      console.log(`Joined table ${tableId} as ${playerId}`);
       setTableId(tableId);
       setPlayerId(playerId);
       setOpponentName(opponentName);
@@ -123,16 +128,19 @@ const ConnectFourOnline = () => {
     });
 
     newSocket.on('gameStarted', (initialGameState) => {
+      console.log('Game started:', initialGameState);
       setGameState(initialGameState);
       setStatus(`${initialGameState.currentPlayer === playerId ? 'Jouw' : 'Tegenstander\'s'} beurt`);
     });
 
     newSocket.on('gameUpdated', (updatedGameState) => {
+      console.log('Game updated:', updatedGameState);
       setGameState(updatedGameState);
       setStatus(`${updatedGameState.currentPlayer === playerId ? 'Jouw' : 'Tegenstander\'s'} beurt`);
     });
 
     newSocket.on('gameOver', ({ winner }) => {
+      console.log('Game over, winner:', winner);
       if (winner === 'draw') {
         setStatus('Gelijkspel!');
       } else {
@@ -147,12 +155,14 @@ const ConnectFourOnline = () => {
     });
 
     newSocket.on('opponentLeft', () => {
+      console.log('Opponent left');
       setStatus('Tegenstander heeft het spel verlaten.');
       setOpponentName('');
       setGameState(null);
     });
 
     newSocket.on('returnToLobby', () => {
+      console.log('Returning to lobby');
       setTableId(null);
       setPlayerId(null);
       setOpponentName('');
@@ -161,21 +171,29 @@ const ConnectFourOnline = () => {
       newSocket.emit('getTables');
     });
 
+    newSocket.on('tableJoinError', (errorMessage) => {
+      console.log('Table join error:', errorMessage);
+      setStatus(errorMessage);
+    });
+
     return () => newSocket.close();
   }, []);
 
   const joinTable = (tableIndex) => {
+    console.log('Attempting to join table:', tableIndex);
     socket.emit('joinTable', tableIndex);
   };
 
   const handleCellClick = (col) => {
     if (gameState && gameState.currentPlayer === playerId) {
+      console.log('Making move on column:', col);
       socket.emit('makeMove', { tableId, col });
     }
   };
 
   const leaveTable = () => {
     if (tableId !== null) {
+      console.log('Leaving table:', tableId);
       socket.emit('leaveTable', tableId);
       setTableId(null);
       setPlayerId(null);
