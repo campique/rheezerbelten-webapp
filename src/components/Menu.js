@@ -24,6 +24,7 @@ const OptionButton = styled.button`
   overflow: hidden;
   transform: ${props => props.rotation};
   background-color: ${props => props.bgColor};
+  width: 100%;
 
   &:hover {
     transform: scale(1.05) rotate(0deg);
@@ -85,7 +86,6 @@ const Menu = ({ currentLanguage, navigateToPage }) => {
     return (
       <MenuWrapper>
         <GameItem 
-          as="button"
           bgColor="#00c853" 
           rotation="rotate(-5deg)" 
           onClick={() => navigateToPage('/games/connect-four')}
@@ -94,7 +94,6 @@ const Menu = ({ currentLanguage, navigateToPage }) => {
           <GameTitle>4 op een rij</GameTitle>
         </GameItem>
         <GameItem 
-          as="button"
           bgColor="#ff4081" 
           rotation="rotate(5deg)" 
           onClick={() => navigateToPage('/games/pancake-dobble')}
@@ -103,7 +102,6 @@ const Menu = ({ currentLanguage, navigateToPage }) => {
           <GameTitle>Pannenkoeken Dobble</GameTitle>
         </GameItem>
         <GameItem 
-          as="button"
           bgColor="#2979ff" 
           rotation="rotate(-3deg)" 
           onClick={() => navigateToPage('/games/pictionary')}
