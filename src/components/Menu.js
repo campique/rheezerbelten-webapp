@@ -1,87 +1,77 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { translations } from '../utils/translations';
 
 const MenuWrapper = styled.div`
-  display: grid;
-  gap: 1rem;
-  width: 100%;
-  max-width: 300px;
-  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `;
 
-const OptionButton = styled.button`
-  color: white;
-  font-weight: bold;
-  padding: 1rem 1.5rem;
-  border-radius: 9999px;
-  border: none;
-  cursor: pointer;
-  font-size: 1.4rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  transform: ${props => props.rotation};
-  background-color: ${props => props.bgColor};
-
-  &:hover {
-    transform: scale(1.05) rotate(0deg);
-    box-shadow: 0 6px 8px -2px rgba(0, 0, 0, 0.15);
-  }
-
-  &:active {
-    transform: scale(0.95) rotate(0deg);
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: rgba(255, 255, 255, 0.2);
-    transform: rotate(45deg);
-    transition: all 0.3s ease;
-  }
-
-  &:hover::after {
-    left: 100%;
-    top: 100%;
-  }
+const MenuItem = styled(Link)`
+  margin: 10px;
+  padding: 10px 20px;
+  background-color: #f0f0f0;
+  border-radius: 5px;
+  text-decoration: none;
+  color: #333;
 `;
 
-const Menu = ({ currentLanguage, navigateToPage }) => {
-  const handleClick = (action) => {
-    navigateToPage(action);
+const GameItem = styled(Link)`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 10px;
+  padding: 10px;
+  background-color: #f0f0f0;
+  border-radius: 5px;
+  text-decoration: none;
+  color: #333;
+`;
+
+const GameEmoji = styled.span`
+  font-size: 24px;
+  margin-bottom: 5px;
+`;
+
+const GameTitle = styled.span`
+  font-size: 16px;
+`;
+
+function Menu({ currentLanguage, navigateToPage }) {
+  const [showGames, setShowGames] = useState(false);
+
+  const handleGamesClick = () => {
+    setShowGames(!showGames);
   };
+
+  if (showGames) {
+    return (
+      <MenuWrapper>
+        <GameItem to="/games/connect-four">
+          <GameEmoji>🔴🟡</GameEmoji>
+          <GameTitle>4 op een rij</GameTitle>
+        </GameItem>
+        <GameItem to="/games/pancake-dobble">
+          <GameEmoji>🥞🔍</GameEmoji>
+          <GameTitle>Pannenkoeken Dobble</GameTitle>
+        </GameItem>
+        <GameItem to="/games/pictionary">
+          <GameEmoji>🎨✏️</GameEmoji>
+          <GameTitle>Pictionary</GameTitle>
+        </GameItem>
+        <MenuItem onClick={() => setShowGames(false)}>Terug</MenuItem>
+      </MenuWrapper>
+    );
+  }
 
   return (
     <MenuWrapper>
-      <OptionButton 
-        bgColor="#00c853" 
-        rotation="rotate(-5deg)" 
-        onClick={() => handleClick('games')}
-      >
-        {translations[currentLanguage].games}
-      </OptionButton>
-      <OptionButton 
-        bgColor="#ff4081" 
-        rotation="rotate(5deg)" 
-        onClick={() => handleClick('placemat')}
-      >
-        {translations[currentLanguage].placemat}
-      </OptionButton>
-      <OptionButton 
-        bgColor="#2979ff" 
-        rotation="rotate(-3deg)" 
-        onClick={() => handleClick('chat')}
-      >
-        {translations[currentLanguage].chat}
-      </OptionButton>
+      <MenuItem onClick={handleGamesClick}>Spelletjes</MenuItem>
+      <MenuItem to="/placemat">Interactieve Placemat</MenuItem>
+      <MenuItem to="/chat">Praten met Knof</MenuItem>
     </MenuWrapper>
   );
-};
+}
 
 export default Menu;
