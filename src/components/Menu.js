@@ -1,5 +1,4 @@
-@@ -1 +1,87 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { translations } from '../utils/translations';
 
@@ -53,10 +52,75 @@ const OptionButton = styled.button`
   }
 `;
 
+const GameItem = styled(OptionButton)`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: auto;
+  padding: 0.5rem 1rem;
+`;
+
+const GameEmoji = styled.span`
+  font-size: 24px;
+  margin-bottom: 5px;
+`;
+
+const GameTitle = styled.span`
+  font-size: 16px;
+`;
+
 const Menu = ({ currentLanguage, navigateToPage }) => {
+  const [showGames, setShowGames] = useState(false);
+
   const handleClick = (action) => {
-    navigateToPage(action);
+    if (action === 'games') {
+      setShowGames(!showGames);
+    } else {
+      navigateToPage(action);
+    }
   };
+
+  if (showGames) {
+    return (
+      <MenuWrapper>
+        <GameItem 
+          as="button"
+          bgColor="#00c853" 
+          rotation="rotate(-5deg)" 
+          onClick={() => navigateToPage('/games/connect-four')}
+        >
+          <GameEmoji>🔴🟡</GameEmoji>
+          <GameTitle>4 op een rij</GameTitle>
+        </GameItem>
+        <GameItem 
+          as="button"
+          bgColor="#ff4081" 
+          rotation="rotate(5deg)" 
+          onClick={() => navigateToPage('/games/pancake-dobble')}
+        >
+          <GameEmoji>🥞🔍</GameEmoji>
+          <GameTitle>Pannenkoeken Dobble</GameTitle>
+        </GameItem>
+        <GameItem 
+          as="button"
+          bgColor="#2979ff" 
+          rotation="rotate(-3deg)" 
+          onClick={() => navigateToPage('/games/pictionary')}
+        >
+          <GameEmoji>🎨✏️</GameEmoji>
+          <GameTitle>Pictionary</GameTitle>
+        </GameItem>
+        <OptionButton 
+          bgColor="#ffd54f" 
+          rotation="rotate(2deg)" 
+          onClick={() => setShowGames(false)}
+        >
+          Terug
+        </OptionButton>
+      </MenuWrapper>
+    );
+  }
 
   return (
     <MenuWrapper>
