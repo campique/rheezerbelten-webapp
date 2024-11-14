@@ -9,6 +9,7 @@ const GameWrapper = styled.div`
   width: 100%;
   max-width: 600px;
   margin: 0 auto;
+  border: 2px solid red; // Toegevoegd om de grenzen van de component te zien
 `;
 
 const Board = styled.div`
@@ -19,11 +20,13 @@ const Board = styled.div`
   padding: 10px;
   border-radius: 10px;
   margin: 1rem 0;
+  width: 100%;
+  max-width: 500px; // Toegevoegd om een maximale breedte te geven
 `;
 
 const Cell = styled.div`
-  width: 100%;
-  padding-bottom: 100%;
+  width: 50px;
+  height: 50px;
   background: white;
   border-radius: 50%;
   position: relative;
@@ -78,42 +81,60 @@ const ConnectFourVsKnof = () => {
   const [currentPlayer, setCurrentPlayer] = useState('red');
   const [gameActive, setGameActive] = useState(true);
   const [status, setStatus] = useState('Jouw beurt');
+  const [isKnofThinking, setIsKnofThinking] = useState(false);
+
+  useEffect(() => {
+    console.log('Initial game state:', gameState);
+    console.log('Board rendered');
+  }, []);
+
+  useEffect(() => {
+    console.log('Game State:', gameState);
+  }, [gameState]);
 
   useEffect(() => {
     if (currentPlayer === 'yellow' && gameActive) {
+      setIsKnofThinking(true);
       setTimeout(makeKnofMove, 1000);
     }
   }, [currentPlayer, gameActive]);
 
   const handleCellClick = (col) => {
-    if (!gameActive || currentPlayer !== 'red') return;
+    if (!gameActive || currentPlayer !== 'red' || isKnofThinking) return;
     makeMove(col);
   };
 
   const makeMove = (col) => {
-    const updatedState = [...gameState];
-    for (let row = 5; row >= 0; row--) {
-      if (updatedState[row][col] === '') {
-        updatedState[row][col] = currentPlayer;
-        setGameState(updatedState);
-        if (checkForWin(row, col, currentPlayer)) {
-          setStatus(currentPlayer === 'red' ? 'Je wint!' : 'Knof wint!');
-          setGameActive(false);
-        } else if (checkForDraw()) {
-          setStatus('Gelijkspel!');
-          setGameActive(false);
-        } else {
-          setCurrentPlayer(currentPlayer === 'red' ? 'yellow' : 'red');
-          setStatus(currentPlayer === 'red' ? 'Knof denkt na...' : 'Jouw beurt');
+    try {
+      const updatedState = [...gameState];
+      for (let row = 5; row >= 0; row--) {
+        if (updatedState[row][col] === '') {
+          updatedState[row][col] = currentPlayer;
+          setGameState(updatedState);
+          if (checkForWin(row, col, currentPlayer)) {
+            setStatus(currentPlayer === 'red' ? 'Je wint!' : 'Knof wint!');
+            setGameActive(false);
+          } else if (checkForDraw()) {
+            setStatus('Gelijkspel!');
+            setGameActive(false);
+          } else {
+            setCurrentPlayer(currentPlayer === 'red' ? 'yellow' : 'red');
+            setStatus(currentPlayer === 'red' ? 'Knof denkt na...' : 'Jouw beurt');
+          }
+          break;
         }
-        break;
       }
+    } catch (error) {
+      console.error('Error in makeMove:', error);
+      setStatus('Er is een fout opgetreden. Probeer het opnieuw.');
     }
   };
 
   const makeKnofMove = () => {
+    console.log('Knof is making a move');
     const bestMove = findBestMove();
     makeMove(bestMove);
+    setIsKnofThinking(false);
   };
 
   const findBestMove = () => {
