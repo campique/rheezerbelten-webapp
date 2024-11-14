@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import Games from './Games';
 
 const HomeContainer = styled.div`
   display: flex;
@@ -11,12 +11,13 @@ const HomeContainer = styled.div`
   background-color: #f0f0f0;
 `;
 
-const Button = styled.button`
+const Button = styled(Link)`
   margin: 10px;
   padding: 15px 30px;
   font-size: 18px;
   background-color: #4CAF50;
   color: white;
+  text-decoration: none;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -28,25 +29,11 @@ const Button = styled.button`
 `;
 
 const Home = () => {
-  const [showGames, setShowGames] = useState(false);
-
-  const handleGamesClick = () => {
-    setShowGames(true);
-  };
-
-  const handleBackClick = () => {
-    setShowGames(false);
-  };
-
-  if (showGames) {
-    return <Games onBack={handleBackClick} />;
-  }
-
   return (
     <HomeContainer>
-      <Button onClick={handleGamesClick}>Spelletjes</Button>
-      <Button>Interactieve Placemat</Button>
-      <Button>Praten met Knof</Button>
+      <Button to="/games">Spelletjes</Button>
+      <Button to="/placemat">Interactieve Placemat</Button>
+      <Button to="/knof">Praten met Knof</Button>
     </HomeContainer>
   );
 };
