@@ -3,13 +3,12 @@ import styled from 'styled-components';
 import { translations } from '../utils/translations';
 
 const MenuWrapper = styled.div`
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 1rem;
   width: 100%;
   max-width: 300px;
   margin-bottom: 2rem;
-  height: 300px; // Toegevoegde vaste hoogte
-  overflow-y: auto; // Toegevoegde overflow
 `;
 
 const OptionButton = styled.button`
@@ -59,7 +58,7 @@ const GameItem = styled(OptionButton)`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 60px; // Toegevoegde vaste hoogte
+  height: auto;
   padding: 0.5rem 1rem;
 `;
 
