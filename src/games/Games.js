@@ -45,12 +45,13 @@ const GameTitle = styled.h3`
   margin-top: 1rem;
 `;
 
-const BackButton = styled.button`
+const BackButton = styled(Link)`
   margin-top: 2rem;
   padding: 0.5rem 1rem;
   font-size: 1rem;
   background-color: #4CAF50;
   color: white;
+  text-decoration: none;
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -61,7 +62,7 @@ const BackButton = styled.button`
   }
 `;
 
-const Games = ({ onBack }) => {
+const Games = () => {
   return (
     <GamesContainer>
       <h2>Spelletjes</h2>
@@ -79,7 +80,7 @@ const Games = ({ onBack }) => {
           <GameTitle>Pictionary</GameTitle>
         </GameItem>
       </GamesList>
-      <BackButton onClick={onBack}>Terug naar hoofdmenu</BackButton>
+      <BackButton to="/">Terug naar hoofdmenu</BackButton>
     </GamesContainer>
   );
 };
