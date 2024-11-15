@@ -221,7 +221,7 @@ function ConnectFourOnline() {
 
   const renderNameEntry = () => (
     <div className="connect-four-container">
-      <h1 className="connect-four-title">Speel online</h1>
+      <h1 className="connect-four-title">Speel 4 op een rij online</h1>
       <NameEntryForm onSubmit={handleNameSubmit}>
         <NameInput
           type="text"
