@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import io from 'socket.io-client';
 import Confetti from 'react-confetti';
 import './ConnectFour.css';
@@ -31,6 +31,12 @@ const Board = styled.div`
   max-width: 600px;
 `;
 
+const blink = keyframes`
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+`;
+
 const Cell = styled.div`
   width: 100%;
   padding-bottom: 100%;
@@ -53,6 +59,7 @@ const Cell = styled.div`
     height: 90%;
     border-radius: 50%;
     background-color: ${props => props.player === 'red' ? '#F44336' : props.player === 'yellow' ? '#FFEB3B' : 'transparent'};
+    animation: ${props => props.isWinning ? blink : 'none'} 1s linear infinite;
   }
 `;
 
@@ -126,6 +133,7 @@ function ConnectFourOnline() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [scores, setScores] = useState({ red: 0, yellow: 0 });
   const [players, setPlayers] = useState({ red: '', yellow: '' });
+  const [winningCells, setWinningCells] = useState([]);
 
   useEffect(() => {
     socket.on('tablesUpdate', (updatedTables) => {
@@ -156,10 +164,13 @@ function ConnectFourOnline() {
       setStatus(`${players[nextPlayer]} is aan de beurt`);
     });
 
-    socket.on('gameOver', (winner) => {
+    socket.on('gameOver', (winner, winningLine) => {
       if (winner) {
         setStatus(`${players[winner]} wint!`);
-        setShowConfetti(true);
+        setWinningCells(winningLine);
+        if (winner === playerColor) {
+          setShowConfetti(true);
+        }
         setScores(prev => ({ ...prev, [winner]: prev[winner] + 1 }));
       } else {
         setStatus('Gelijkspel!');
@@ -175,7 +186,7 @@ function ConnectFourOnline() {
       socket.off('gameUpdate');
       socket.off('gameOver');
     };
-  }, [players]);
+  }, [players, playerColor]);
 
   const handleNameSubmit = (e) => {
     e.preventDefault();
@@ -200,12 +211,13 @@ function ConnectFourOnline() {
     setBoard(Array(6).fill().map(() => Array(7).fill('')));
     setStatus('Wachten op tegenstander...');
     setShowConfetti(false);
+    setWinningCells([]);
     setGameState('game');
   };
 
   const renderNameEntry = () => (
     <div className="connect-four-container">
-      <h1 className="connect-four-title">Speel online</h1>
+      <h1 className="connect-four-title">Speel 4 op een rij online</h1>
       <NameEntryForm onSubmit={handleNameSubmit}>
         <NameInput
           type="text"
@@ -262,6 +274,7 @@ function ConnectFourOnline() {
               player={cell}
               onClick={() => makeMove(colIndex)}
               isCurrentPlayer={currentPlayer === playerColor}
+              isWinning={winningCells.some(([r, c]) => r === rowIndex && c === colIndex)}
             />
           ))
         )}
