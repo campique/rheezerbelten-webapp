@@ -18,9 +18,10 @@ app.use(express.static(path.join(__dirname, '../build')));
 let waitingPlayer = null;
 
 io.on('connection', (socket) => {
-  console.log('New client connected');
+  console.log('New client connected', socket.id);
 
   if (waitingPlayer) {
+    console.log('Starting game with', waitingPlayer.id, 'and', socket.id);
     // Start game
     const game = {
       players: [waitingPlayer, socket],
@@ -35,6 +36,7 @@ io.on('connection', (socket) => {
 
     game.players.forEach(player => {
       player.on('makeMove', ({ col }) => {
+        console.log('Move made by', player.id, 'in column', col);
         if (player !== game.players[game.currentPlayer === 'red' ? 0 : 1]) return;
 
         const row = game.gameState.findIndex(r => r[col] === '');
@@ -58,6 +60,7 @@ io.on('connection', (socket) => {
       });
 
       player.on('resetGame', () => {
+        console.log('Game reset by', player.id);
         game.gameState = Array(6).fill().map(() => Array(7).fill(''));
         game.currentPlayer = 'red';
         io.to(game.players[0].id).to(game.players[1].id).emit('gameUpdate', {
@@ -68,12 +71,13 @@ io.on('connection', (socket) => {
     });
 
   } else {
+    console.log('Player waiting:', socket.id);
     waitingPlayer = socket;
     socket.emit('waiting');
   }
 
   socket.on('disconnect', () => {
-    console.log('Client disconnected');
+    console.log('Client disconnected', socket.id);
     if (waitingPlayer === socket) {
       waitingPlayer = null;
     }
