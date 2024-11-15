@@ -167,7 +167,7 @@ function ConnectFourOnline() {
     socket.on('gameOver', (winner, winningLine) => {
       if (winner) {
         setStatus(`${players[winner]} wint!`);
-        setWinningCells(winningLine);
+        setWinningCells(winningLine || []);
         if (winner === playerColor) {
           setShowConfetti(true);
         }
