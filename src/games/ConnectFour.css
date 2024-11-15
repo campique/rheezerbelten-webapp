@@ -3,6 +3,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 20px;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .board {
@@ -13,6 +16,8 @@
   padding: 10px;
   border-radius: 10px;
   margin-bottom: 20px;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .cell {
@@ -34,13 +39,96 @@
 .status, .scoreboard {
   margin-bottom: 10px;
   font-size: 1.2rem;
+  text-align: center;
 }
 
 .rematch-section {
   margin-top: 20px;
+  display: flex;
+  justify-content: center;
 }
 
 .rematch-section button {
   margin: 0 10px;
-  padding: 5px 10px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* Nieuwe stijlen voor de online versie */
+.connect-four-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.connect-four-title {
+  font-size: 24px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.connect-four-input {
+  width: 100%;
+  max-width: 300px;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 2px solid #2196F3;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+.connect-four-button {
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.connect-four-button:hover {
+  background-color: #1976D2;
+}
+
+.connect-four-lobby {
+  width: 100%;
+  max-width: 400px;
+}
+
+.connect-four-table {
+  background-color: white;
+  border: 2px solid #2196F3;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+@media (max-width: 600px) {
+  .cell {
+    width: 40px;
+    height: 40px;
+  }
+
+  .connect-four-title {
+    font-size: 20px;
+  }
+
+  .connect-four-input,
+  .connect-four-button {
+    font-size: 14px;
+  }
 }
