@@ -35,22 +35,7 @@ const Title = styled.h2`
   margin-bottom: 1rem;
 `;
 
-const translations = {
-  nl: {
-    title: "Kies een spelmodus",
-    vsKnof: "Speel tegen Knof",
-    vsLocal: "Speel lokaal tegen een vriend",
-    vsOnline: "Speel online"
-  },
-  de: {
-    title: "Wähle einen Spielmodus",
-    vsKnof: "Spiele gegen Knof",
-    vsLocal: "Spiele lokal gegen einen Freund",
-    vsOnline: "Spiele online"
-  }
-};
-
-const ConnectFourOptions = ({ currentLanguage }) => {
+const ConnectFourOptions = () => {
   const navigate = useNavigate();
 
   const handleOption = (option) => {
@@ -71,15 +56,15 @@ const ConnectFourOptions = ({ currentLanguage }) => {
 
   return (
     <OptionsWrapper>
-      <Title>{translations[currentLanguage].title}</Title>
+      <Title>Kies een spelmodus</Title>
       <OptionButton onClick={() => handleOption('vsKnof')}>
-        {translations[currentLanguage].vsKnof}
+        Speel tegen Knof
       </OptionButton>
       <OptionButton onClick={() => handleOption('vsLocal')}>
-        {translations[currentLanguage].vsLocal}
+        Speel lokaal tegen een vriend
       </OptionButton>
       <OptionButton onClick={() => handleOption('vsOnline')}>
-        {translations[currentLanguage].vsOnline}
+        Speel online
       </OptionButton>
     </OptionsWrapper>
   );
