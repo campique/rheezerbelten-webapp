@@ -15,7 +15,7 @@ const GameWrapper = styled.div`
   flex-direction: column;
   align-items: center;
   width: 100%;
-  max-width: 600px;
+  max-width: 100%;
   margin: 0 auto;
 `;
 
@@ -28,7 +28,7 @@ const Board = styled.div`
   border-radius: 10px;
   margin: 1rem 0;
   width: 100%;
-  max-width: 600px;
+  max-width: 100%;
 `;
 
 const pulse = keyframes`
