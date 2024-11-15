@@ -125,8 +125,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
-    console.log('Client disconnected');
-    tables.forEach((table, index) => {
+    tables.forEach(table => {
       const playerIndex = table.players.findIndex(p => p.id === socket.id);
       if (playerIndex !== -1) {
         table.players.splice(playerIndex, 1);
@@ -136,19 +135,19 @@ io.on('connection', (socket) => {
         if (table.players.length === 1) {
           io.to(table.id).emit('joinedTable', table);
         }
-        io.emit('tablesUpdate', tables);
       }
     });
+    io.emit('tablesUpdate', tables);
   });
 });
 
-// Serve static files from the React app
-app.use(express.static(path.join(__dirname, 'client/build')));
+// Serve static files from the build directory
+app.use(express.static(path.join(__dirname, '../build')));
 
 // The "catchall" handler: for any request that doesn't
 // match one above, send back React's index.html file.
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
+  res.sendFile(path.join(__dirname, '../build', 'index.html'));
 });
 
 const PORT = process.env.PORT || 3001;
