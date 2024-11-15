@@ -16,7 +16,7 @@ const OptionButton = styled.div`
   color: white;
   padding: 15px 20px;
   margin: 10px;
-  border-radius: 10px;
+  border-radius: 25px;
   cursor: pointer;
   display: flex;
   align-items: center;
