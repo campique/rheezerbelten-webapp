@@ -118,32 +118,14 @@ io.on('connection', (socket) => {
     const table = tables.find(t => t.id === tableId);
     if (table) {
       table.rematchVotes[color] = vote;
+      io.to(table.id).emit('rematchVoteUpdate', table.rematchVotes);
+
       if (table.rematchVotes.red && table.rematchVotes.yellow) {
         // Both players voted for rematch
-        table.board = Array(6).fill().map(() => Array(7).fill(''));
-        const startingPlayer = Math.random() < 0.5 ? 'red' : 'yellow';
-        table.currentPlayer = startingPlayer;
-        const players = {
-          red: table.players.find(p => p.color === 'red').name,
-          yellow: table.players.find(p => p.color === 'yellow').name
-        };
-        table.rematchVotes = { red: false, yellow: false };
-        io.to(table.id).emit('rematchAccepted');
-        io.to(table.id).emit('gameStart', { startingPlayer, players });
-      } else if (!table.rematchVotes.red || !table.rematchVotes.yellow) {
+        startNewGame(table);
+      } else if (table.rematchVotes.red === false || table.rematchVotes.yellow === false) {
         // One player voted against rematch
-        io.to(table.id).emit('returnToLobby');
-        table.players.forEach(player => {
-          const playerSocket = io.sockets.sockets.get(player.id);
-          if (playerSocket) {
-            playerSocket.leave(table.id);
-          }
-        });
-        table.players = [];
-        table.board = Array(6).fill().map(() => Array(7).fill(''));
-        table.currentPlayer = '';
-        table.rematchVotes = { red: false, yellow: false };
-        io.emit('tablesUpdate', tables);
+        returnToLobby(table);
       }
     }
   });
@@ -164,6 +146,34 @@ io.on('connection', (socket) => {
     io.emit('tablesUpdate', tables);
   });
 });
+
+function startNewGame(table) {
+  table.board = Array(6).fill().map(() => Array(7).fill(''));
+  const startingPlayer = Math.random() < 0.5 ? 'red' : 'yellow';
+  table.currentPlayer = startingPlayer;
+  const players = {
+    red: table.players.find(p => p.color === 'red').name,
+    yellow: table.players.find(p => p.color === 'yellow').name
+  };
+  table.rematchVotes = { red: false, yellow: false };
+  io.to(table.id).emit('rematchAccepted');
+  io.to(table.id).emit('gameStart', { startingPlayer, players });
+}
+
+function returnToLobby(table) {
+  io.to(table.id).emit('returnToLobby');
+  table.players.forEach(player => {
+    const playerSocket = io.sockets.sockets.get(player.id);
+    if (playerSocket) {
+      playerSocket.leave(table.id);
+    }
+  });
+  table.players = [];
+  table.board = Array(6).fill().map(() => Array(7).fill(''));
+  table.currentPlayer = '';
+  table.rematchVotes = { red: false, yellow: false };
+  io.emit('tablesUpdate', tables);
+}
 
 app.use(express.static(path.join(__dirname, '../build')));
 
