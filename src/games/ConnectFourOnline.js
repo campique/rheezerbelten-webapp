@@ -135,7 +135,7 @@ function ConnectFourOnline() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [scores, setScores] = useState({ red: 0, yellow: 0 });
   const [players, setPlayers] = useState({ red: '', yellow: '' });
-  const [winningCells, setWinningCells] = useState([]);
+  const [winningLine, setWinningLine] = useState([]);
 
   useEffect(() => {
     socket.on('tablesUpdate', (updatedTables) => {
@@ -172,7 +172,7 @@ function ConnectFourOnline() {
         setStatus('Gelijkspel!');
       } else {
         setStatus(`${players[winner]} wint!`);
-        setWinningCells(winningLine || []);
+        setWinningLine(winningLine || []);
         if (winner === playerColor) {
           setShowConfetti(true);
         }
@@ -190,6 +190,12 @@ function ConnectFourOnline() {
       socket.off('gameOver');
     };
   }, [players, playerColor]);
+
+  useEffect(() => {
+    if (gameState === 'game') {
+      setWinningLine([]);
+    }
+  }, [gameState]);
 
   const handleNameSubmit = (e) => {
     e.preventDefault();
@@ -215,7 +221,7 @@ function ConnectFourOnline() {
     setBoard(Array(6).fill().map(() => Array(7).fill('')));
     setStatus('Wachten op tegenstander...');
     setShowConfetti(false);
-    setWinningCells([]);
+    setWinningLine([]);
     setGameState('game');
   };
 
@@ -278,7 +284,7 @@ function ConnectFourOnline() {
               player={cell}
               onClick={() => makeMove(colIndex)}
               isCurrentPlayer={currentPlayer === playerColor && gameState === 'game'}
-              isWinning={winningCells.some(([r, c]) => r === rowIndex && c === colIndex)}
+              isWinning={winningLine.some(([r, c]) => r === rowIndex && c === colIndex)}
             />
           ))
         )}
