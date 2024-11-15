@@ -62,9 +62,12 @@ body {
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
+  width: 90vw;
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
+  min-height: 70vh;
+  position: relative;
 }
 
 .connect-four-table {
@@ -72,7 +75,6 @@ body {
   height: 120px;
   border-radius: 50%;
   background-color: #81C784;
-  margin: 15px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -80,12 +82,13 @@ body {
   cursor: pointer;
   transition: all 0.3s;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  position: relative;
+  position: absolute;
 }
 
 .connect-four-table:hover {
-  transform: scale(1.05) rotate(0deg);
+  transform: scale(1.05) rotate(0deg) !important;
   box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+  z-index: 10;
 }
 
 .table-name {
@@ -111,6 +114,11 @@ body {
 
 .player-slot.occupied {
   background-color: #FF5722;
+}
+
+.back-button-container {
+  margin-top: 20px;
+  padding-bottom: 20px;
 }
 
 .board {
