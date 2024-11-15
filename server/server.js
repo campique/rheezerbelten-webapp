@@ -100,7 +100,7 @@ io.on('connection', (socket) => {
             table.scores[table.currentPlayer]++;
             io.to(table.id).emit('gameOver', table.currentPlayer, winningLine);
           } else if (table.board.every(row => row.every(cell => cell !== ''))) {
-            io.to(table.id).emit('gameOver', null);
+            io.to(table.id).emit('gameOver', null, null);
           } else {
             table.currentPlayer = table.currentPlayer === 'red' ? 'yellow' : 'red';
             io.to(table.id).emit('gameUpdate', table.board, table.currentPlayer);
@@ -142,11 +142,8 @@ io.on('connection', (socket) => {
   });
 });
 
-// Serve static files from the build directory
 app.use(express.static(path.join(__dirname, '../build')));
 
-// The "catchall" handler: for any request that doesn't
-// match one above, send back React's index.html file.
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../build', 'index.html'));
 });
