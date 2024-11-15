@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 const OptionsWrapper = styled.div`
@@ -35,13 +35,12 @@ const Title = styled.h2`
   margin-bottom: 1rem;
 `;
 
-const BackButton = styled(Link)`
+const BackButton = styled.button`
   margin-top: 2rem;
   padding: 0.5rem 1rem;
   font-size: 1rem;
   background-color: #2196F3;
   color: white;
-  text-decoration: none;
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -71,6 +70,10 @@ const ConnectFourOptions = () => {
     }
   };
 
+  const handleBack = () => {
+    navigate(-1); // This will navigate back to the previous page
+  };
+
   return (
     <OptionsWrapper>
       <Title>Kies een spelmodus</Title>
@@ -83,7 +86,7 @@ const ConnectFourOptions = () => {
       <OptionButton onClick={() => handleOption('vsOnline')}>
         Speel online
       </OptionButton>
-      <BackButton to="/games">Terug naar spelletjes</BackButton>
+      <BackButton onClick={handleBack}>Terug naar spelletjes</BackButton>
     </OptionsWrapper>
   );
 };
