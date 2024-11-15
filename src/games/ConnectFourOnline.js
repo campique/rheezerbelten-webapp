@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 import io from 'socket.io-client';
 import Confetti from 'react-confetti';
 import './ConnectFour.css';
@@ -31,12 +31,6 @@ const Board = styled.div`
   aspect-ratio: 7 / 6;
 `;
 
-const pulse = keyframes`
-  0% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); }
-`;
-
 const Cell = styled.div`
   width: 100%;
   aspect-ratio: 1 / 1;
@@ -63,9 +57,15 @@ const Cell = styled.div`
       box-shadow: inset 0 0 0 4px #4CAF50;
     `}
     ${props => props.isLastWinning && `
-      animation: ${pulse} 0.5s ease-in-out infinite;
+      animation: pulse 0.5s ease-in-out infinite;
       box-shadow: inset 0 0 0 4px gold, 0 0 15px 7px gold;
     `}
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
   }
 `;
 
