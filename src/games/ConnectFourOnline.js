@@ -33,7 +33,7 @@ const Board = styled.div`
 
 const Cell = styled.div`
   width: 100%;
-  aspect-ratio: 1 / 1;
+  padding-bottom: 100%;
   background: white;
   border-radius: 50%;
   position: relative;
