@@ -13,7 +13,6 @@ import ConnectFourVsKnof from './games/ConnectFourVsKnof';
 import ConnectFourOnline from './games/ConnectFourOnline';
 import PancakeDobble from './games/PancakeDobble';
 import Pictionary from './games/Pictionary';
-import ConnectFour from './games/ConnectFour'; // Importeer de nieuwe ConnectFour component
 
 const AppWrapper = styled.div`
   display: flex;
@@ -78,7 +77,7 @@ function AppContent() {
             <Route path="/games/connect-four" element={<ConnectFourOptions currentLanguage={currentLanguage} />} />
             <Route path="/games/connect-four/local" element={<ConnectFourLocal />} />
             <Route path="/games/connect-four/vs-knof" element={<ConnectFourVsKnof />} />
-            <Route path="/games/connect-four/online" element={<ConnectFour />} /> {/* Vervang ConnectFourOnline met de nieuwe ConnectFour component */}
+            <Route path="/games/connect-four/online" element={<ConnectFourOnline />} />
             <Route path="/games/pancake-dobble" element={<PancakeDobble />} />
             <Route path="/games/pictionary" element={<Pictionary />} />
           </Routes>
