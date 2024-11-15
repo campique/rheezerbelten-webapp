@@ -208,6 +208,9 @@ function ConnectFourOnline() {
 
     socket.on('rematchVoteUpdate', (votes) => {
       setRematchVotes(votes);
+      if (votes.red === false || votes.yellow === false) {
+        returnToLobby();
+      }
     });
 
     return () => {
@@ -243,7 +246,14 @@ function ConnectFourOnline() {
   };
 
   const voteRematch = (vote) => {
-    socket.emit('rematchVote', currentTable.id, playerColor, vote);
+    if (!vote) {
+      // Als de stem "Nee" is, keer direct terug naar de lobby
+      socket.emit('rematchVote', currentTable.id, playerColor, false);
+      returnToLobby();
+    } else {
+      // Als de stem "Ja" is, stuur de stem naar de server en wacht
+      socket.emit('rematchVote', currentTable.id, playerColor, true);
+    }
   };
 
   const startNewGame = () => {
@@ -342,7 +352,7 @@ function ConnectFourOnline() {
           <p>Wil je nog een keer spelen?</p>
           <Button onClick={() => voteRematch(true)} disabled={rematchVotes[playerColor] !== null}>Ja</Button>
           <Button onClick={() => voteRematch(false)} disabled={rematchVotes[playerColor] !== null}>Nee</Button>
-          {rematchVotes[playerColor] !== null && <p>Wachten op de andere speler...</p>}
+          {rematchVotes[playerColor] === true && <p>Wachten op de andere speler...</p>}
         </div>
       ) : (
         gameState !== 'gameOver' && <Button onClick={returnToLobby}>Terug naar lobby</Button>
