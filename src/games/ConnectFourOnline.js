@@ -15,7 +15,7 @@ const GameWrapper = styled.div`
   flex-direction: column;
   align-items: center;
   width: 100%;
-  max-width: 100%;
+  max-width: 600px;
   margin: 0 auto;
 `;
 
@@ -28,7 +28,7 @@ const Board = styled.div`
   border-radius: 10px;
   margin: 1rem 0;
   width: 100%;
-  max-width: 100%;
+  aspect-ratio: 7 / 6;
 `;
 
 const pulse = keyframes`
@@ -39,7 +39,7 @@ const pulse = keyframes`
 
 const Cell = styled.div`
   width: 100%;
-  padding-bottom: 100%;
+  aspect-ratio: 1 / 1;
   background: white;
   border-radius: 50%;
   position: relative;
@@ -172,7 +172,9 @@ function ConnectFourOnline() {
     });
 
     socket.on('gameOver', (winner, winningLine) => {
-      if (winner) {
+      if (winner === 'draw') {
+        setStatus('Gelijkspel!');
+      } else {
         setStatus(`${players[winner]} wint!`);
         setWinningCells(winningLine || []);
         if (winningLine && winningLine.length > 0) {
@@ -182,8 +184,6 @@ function ConnectFourOnline() {
           setShowConfetti(true);
         }
         setScores(prev => ({ ...prev, [winner]: prev[winner] + 1 }));
-      } else {
-        setStatus('Gelijkspel!');
       }
       setGameState('gameOver');
     });
