@@ -54,14 +54,18 @@ const Cell = styled.div`
     border-radius: 50%;
     background-color: ${props => props.player === 'red' ? '#F44336' : props.player === 'yellow' ? '#FFEB3B' : 'transparent'};
     ${props => props.isWinning && `
-      animation: blink 0.7s ease-in-out infinite;
+      box-shadow: inset 0 0 0 4px #4CAF50;
+    `}
+    ${props => props.isLastWinning && `
+      animation: pulse 0.5s ease-in-out infinite;
+      box-shadow: inset 0 0 0 4px gold, 0 0 15px 7px gold;
     `}
   }
 
-  @keyframes blink {
-    0% { opacity: 1; }
-    50% { opacity: 0.5; }
-    100% { opacity: 1; }
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
   }
 `;
 
@@ -135,7 +139,8 @@ function ConnectFourOnline() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [scores, setScores] = useState({ red: 0, yellow: 0 });
   const [players, setPlayers] = useState({ red: '', yellow: '' });
-  const [winningLine, setWinningLine] = useState([]);
+  const [winningCells, setWinningCells] = useState([]);
+  const [lastWinningCell, setLastWinningCell] = useState(null);
 
   useEffect(() => {
     socket.on('tablesUpdate', (updatedTables) => {
@@ -172,7 +177,10 @@ function ConnectFourOnline() {
         setStatus('Gelijkspel!');
       } else {
         setStatus(`${players[winner]} wint!`);
-        setWinningLine(winningLine || []);
+        setWinningCells(winningLine || []);
+        if (winningLine && winningLine.length > 0) {
+          setLastWinningCell(winningLine[winningLine.length - 1]);
+        }
         if (winner === playerColor) {
           setShowConfetti(true);
         }
@@ -190,12 +198,6 @@ function ConnectFourOnline() {
       socket.off('gameOver');
     };
   }, [players, playerColor]);
-
-  useEffect(() => {
-    if (gameState === 'game') {
-      setWinningLine([]);
-    }
-  }, [gameState]);
 
   const handleNameSubmit = (e) => {
     e.preventDefault();
@@ -221,7 +223,8 @@ function ConnectFourOnline() {
     setBoard(Array(6).fill().map(() => Array(7).fill('')));
     setStatus('Wachten op tegenstander...');
     setShowConfetti(false);
-    setWinningLine([]);
+    setWinningCells([]);
+    setLastWinningCell(null);
     setGameState('game');
   };
 
@@ -284,7 +287,8 @@ function ConnectFourOnline() {
               player={cell}
               onClick={() => makeMove(colIndex)}
               isCurrentPlayer={currentPlayer === playerColor && gameState === 'game'}
-              isWinning={winningLine.some(([r, c]) => r === rowIndex && c === colIndex)}
+              isWinning={winningCells.some(([r, c]) => r === rowIndex && c === colIndex)}
+              isLastWinning={lastWinningCell && lastWinningCell[0] === rowIndex && lastWinningCell[1] === colIndex}
             />
           ))
         )}
