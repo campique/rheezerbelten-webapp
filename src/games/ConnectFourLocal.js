@@ -47,6 +47,15 @@ const Cell = styled.div`
     border-radius: 50%;
     background-color: ${props => props.player === 'red' ? '#F44336' : props.player === 'yellow' ? '#FFEB3B' : 'transparent'};
   }
+
+  ${props => props.isWinning && `
+    animation: blink 0.5s alternate infinite;
+  `}
+
+  @keyframes blink {
+    from { opacity: 1; }
+    to { opacity: 0.5; }
+  }
 `;
 
 const Status = styled.div`
@@ -82,6 +91,7 @@ const ConnectFourLocal = () => {
   const [gameActive, setGameActive] = useState(true);
   const [status, setStatus] = useState('Rode speler is aan de beurt');
   const [showConfetti, setShowConfetti] = useState(false);
+  const [winningCells, setWinningCells] = useState([]);
 
   const handleCellClick = (col) => {
     if (!gameActive) return;
@@ -95,7 +105,9 @@ const ConnectFourLocal = () => {
         if (updatedState[row][col] === '') {
           updatedState[row][col] = currentPlayer;
           setGameState(updatedState);
-          if (checkForWin(row, col, currentPlayer)) {
+          const winningCells = checkForWin(row, col, currentPlayer);
+          if (winningCells) {
+            setWinningCells(winningCells);
             setStatus(`${currentPlayer === 'red' ? 'Rode' : 'Gele'} speler wint!`);
             setGameActive(false);
             setShowConfetti(true);
@@ -116,47 +128,30 @@ const ConnectFourLocal = () => {
   };
 
   const checkForWin = (row, col, player, board = gameState) => {
-    // Horizontaal
-    for (let r = 0; r < 6; r++) {
-      for (let c = 0; c < 4; c++) {
-        if (board[r][c] === player && board[r][c+1] === player && 
-            board[r][c+2] === player && board[r][c+3] === player) {
-          return true;
+    const directions = [
+      [[0,1],[0,2],[0,3]], // Horizontaal
+      [[1,0],[2,0],[3,0]], // Verticaal
+      [[1,1],[2,2],[3,3]], // Diagonaal \
+      [[-1,1],[-2,2],[-3,3]] // Diagonaal /
+    ];
+
+    for (let direction of directions) {
+      let winningCells = [[row, col]];
+      let valid = true;
+      for (let [dr, dc] of direction) {
+        let r = row + dr, c = col + dc;
+        if (r < 0 || r >= 6 || c < 0 || c >= 7 || board[r][c] !== player) {
+          valid = false;
+          break;
         }
+        winningCells.push([r, c]);
+      }
+      if (valid) {
+        return winningCells;
       }
     }
 
-    // Verticaal
-    for (let r = 0; r < 3; r++) {
-      for (let c = 0; c < 7; c++) {
-        if (board[r][c] === player && board[r+1][c] === player && 
-            board[r+2][c] === player && board[r+3][c] === player) {
-          return true;
-        }
-      }
-    }
-
-    // Diagonaal /
-    for (let r = 3; r < 6; r++) {
-      for (let c = 0; c < 4; c++) {
-        if (board[r][c] === player && board[r-1][c+1] === player && 
-            board[r-2][c+2] === player && board[r-3][c+3] === player) {
-          return true;
-        }
-      }
-    }
-
-    // Diagonaal \
-    for (let r = 0; r < 3; r++) {
-      for (let c = 0; c < 4; c++) {
-        if (board[r][c] === player && board[r+1][c+1] === player && 
-            board[r+2][c+2] === player && board[r+3][c+3] === player) {
-          return true;
-        }
-      }
-    }
-
-    return false;
+    return null;
   };
 
   const checkForDraw = (board = gameState) => {
@@ -169,6 +164,7 @@ const ConnectFourLocal = () => {
     setGameActive(true);
     setStatus('Rode speler is aan de beurt');
     setShowConfetti(false);
+    setWinningCells([]);
   };
 
   return (
@@ -182,6 +178,7 @@ const ConnectFourLocal = () => {
               key={`${rowIndex}-${colIndex}`}
               player={cell}
               onClick={() => handleCellClick(colIndex)}
+              isWinning={winningCells.some(([r, c]) => r === rowIndex && c === colIndex)}
             />
           ))
         )}
