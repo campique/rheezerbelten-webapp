@@ -120,14 +120,12 @@ io.on('connection', (socket) => {
       table.rematchVotes[color] = vote;
       io.to(table.id).emit('rematchVoteUpdate', table.rematchVotes);
 
-      if (table.rematchVotes.red !== null && table.rematchVotes.yellow !== null) {
-        if (table.rematchVotes.red && table.rematchVotes.yellow) {
-          // Both players voted for rematch
-          startNewGame(table);
-        } else {
-          // At least one player voted against rematch
-          returnToLobby(table);
-        }
+      if (table.rematchVotes.red === false || table.rematchVotes.yellow === false) {
+        // If any player votes no, return to lobby immediately
+        returnToLobby(table);
+      } else if (table.rematchVotes.red === true && table.rematchVotes.yellow === true) {
+        // If both players vote yes, start a new game
+        startNewGame(table);
       }
     }
   });
