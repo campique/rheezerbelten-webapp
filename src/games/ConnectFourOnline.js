@@ -286,7 +286,7 @@ function ConnectFourOnline() {
               key={`${rowIndex}-${colIndex}`}
               player={cell}
               onClick={() => makeMove(colIndex)}
-              isCurrentPlayer={currentPlayer === playerColor}
+              isCurrentPlayer={currentPlayer === playerColor && gameState === 'game'}
               isWinning={winningCells.some(([r, c]) => r === rowIndex && c === colIndex)}
               isLastWinning={lastWinningCell && lastWinningCell[0] === rowIndex && lastWinningCell[1] === colIndex}
             />
