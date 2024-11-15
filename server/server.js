@@ -144,11 +144,25 @@ io.on('connection', (socket) => {
   });
 
   socket.on('returnToLobby', () => {
-    removePlayerFromAllTables(socket.id);
-    io.emit('tablesUpdate', tables);
+    const table = tables.find(t => t.players.some(p => p.id === socket.id));
+    if (table) {
+      const otherPlayer = table.players.find(p => p.id !== socket.id);
+      if (otherPlayer) {
+        io.to(otherPlayer.id).emit('opponentLeft');
+      }
+      removePlayerFromAllTables(socket.id);
+      io.emit('tablesUpdate', tables);
+    }
   });
 
   socket.on('disconnect', () => {
+    const table = tables.find(t => t.players.some(p => p.id === socket.id));
+    if (table) {
+      const otherPlayer = table.players.find(p => p.id !== socket.id);
+      if (otherPlayer) {
+        io.to(otherPlayer.id).emit('opponentLeft');
+      }
+    }
     removePlayerFromAllTables(socket.id);
     io.emit('tablesUpdate', tables);
   });
