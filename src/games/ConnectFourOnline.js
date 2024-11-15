@@ -328,22 +328,29 @@ function ConnectFourOnline() {
   );
 
   const renderLobby = () => (
-    <div className="lobby-container">
-      <h2 className="connect-four-title">Kies een tafel</h2>
-      <div className="tables-container">
-        {tables.map((table, index) => (
-          <div key={index} className="connect-four-table" onClick={() => joinTable(index)}>
-            <span className="table-name">Tafel {index + 1}</span>
-            <div className="player-slots">
-              <div className={`player-slot ${table.players[0] ? 'occupied' : ''}`}></div>
-              <div className={`player-slot ${table.players[1] ? 'occupied' : ''}`}></div>
-            </div>
+  <div className="lobby-container">
+    <h2 className="connect-four-title">Kies een tafel</h2>
+    <div className="tables-container">
+      {tables.map((table, index) => (
+        <div 
+          key={index} 
+          className="connect-four-table" 
+          onClick={() => joinTable(index)}
+          style={{
+            transform: `rotate(${Math.random() * 10 - 5}deg) translate(${Math.random() * 20 - 10}px, ${Math.random() * 20 - 10}px)`
+          }}
+        >
+          <span className="table-name">Tafel {index + 1}</span>
+          <div className="player-slots">
+            <div className={`player-slot ${table.players[0] ? 'occupied' : ''}`}></div>
+            <div className={`player-slot ${table.players[1] ? 'occupied' : ''}`}></div>
           </div>
-        ))}
-      </div>
-      <Button onClick={() => setGameState('enterName')} className="connect-four-button">Terug</Button>
+        </div>
+      ))}
     </div>
-  );
+    <Button onClick={() => setGameState('enterName')} className="connect-four-button">Terug</Button>
+  </div>
+);
 
   const renderGame = () => (
     <GameWrapper>
