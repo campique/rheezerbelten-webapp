@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import io from 'socket.io-client';
 import Confetti from 'react-confetti';
+import './ConnectFour.css';
 
 const socket = io(process.env.REACT_APP_SERVER_URL || '');
 
@@ -10,7 +11,7 @@ const GameWrapper = styled.div`
   flex-direction: column;
   align-items: center;
   width: 100%;
-  max-width: 100%;
+  max-width: 600px;
   margin: 0 auto;
 `;
 
@@ -23,7 +24,7 @@ const Board = styled.div`
   border-radius: 10px;
   margin: 1rem 0;
   width: 100%;
-  max-width: 100%;
+  max-width: 600px;
 `;
 
 const Cell = styled.div`
