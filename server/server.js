@@ -1,12 +1,27 @@
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
+const path = require('path');
+const cors = require('cors');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
+const io = socketIo(server, {
+  cors: {
+    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    methods: ["GET", "POST"]
+  }
+});
 
-let tables = Array(10).fill().map(() => ({ id: Date.now() + Math.random(), players: [], board: Array(6).fill().map(() => Array(7).fill(null)), currentPlayer: 'red' }));
+app.use(cors());
+
+let tables = Array(10).fill().map(() => ({ 
+  id: Date.now() + Math.random(), 
+  players: [], 
+  board: Array(6).fill().map(() => Array(7).fill(null)), 
+  currentPlayer: 'red', 
+  scores: { red: 0, yellow: 0 } 
+}));
 
 function checkWin(board, player) {
   // Horizontaal
@@ -76,7 +91,6 @@ io.on('connection', (socket) => {
       if (row !== -1) {
         table.board[row][col] = table.currentPlayer;
         if (checkWin(table.board, table.currentPlayer)) {
-          table.scores = table.scores || { red: 0, yellow: 0 };
           table.scores[table.currentPlayer]++;
           io.to(table.id).emit('gameOver', table.currentPlayer, table.scores);
         } else if (table.board.every(row => row.every(cell => cell !== null))) {
@@ -117,6 +131,15 @@ io.on('connection', (socket) => {
     });
     io.emit('tablesUpdate', tables);
   });
+});
+
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, 'build')));
+
+// The "catchall" handler: for any request that doesn't
+// match one above, send back React's index.html file.
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
 
 const PORT = process.env.PORT || 3001;
