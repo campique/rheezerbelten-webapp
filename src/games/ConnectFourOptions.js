@@ -14,32 +14,41 @@ const OptionsContainer = styled.div`
 const OptionButton = styled.div`
   background-color: ${props => props.bgColor};
   color: white;
-  padding: 15px;
+  padding: 15px 20px;
   margin: 10px;
   border-radius: 10px;
   cursor: pointer;
-  transform: ${props => props.rotation};
-  transition: all 0.3s ease;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  width: 160px;
-  height: 80px;
+  width: 250px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  transform: ${props => props.rotation};
+
+  &:before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: rgba(255, 255, 255, 0.1);
+    transform: rotate(45deg);
+  }
 
   &:hover {
-    transform: scale(1.05) ${props => props.rotation};
+    transform: scale(1.05) ${props => props.hoverRotation};
   }
 `;
 
 const GameEmoji = styled.span`
-  font-size: 1.5rem;
-  margin-bottom: 5px;
+  font-size: 2rem;
+  margin-right: 15px;
 `;
 
 const GameTitle = styled.span`
-  font-size: 1rem;
-  text-align: center;
+  font-size: 1.2rem;
 `;
 
 const ConnectFourOptions = () => {
@@ -69,7 +78,8 @@ const ConnectFourOptions = () => {
     <OptionsContainer>
       <OptionButton 
         bgColor="#00c853" 
-        rotation="rotate(-5deg)" 
+        rotation="rotate(-5deg)"
+        hoverRotation="rotate(0deg)"
         onClick={() => handleOption('vsKnof')}
       >
         <GameEmoji>🤖</GameEmoji>
@@ -77,7 +87,8 @@ const ConnectFourOptions = () => {
       </OptionButton>
       <OptionButton 
         bgColor="#ff4081" 
-        rotation="rotate(5deg)" 
+        rotation="rotate(5deg)"
+        hoverRotation="rotate(0deg)"
         onClick={() => handleOption('vsLocal')}
       >
         <GameEmoji>👥</GameEmoji>
@@ -85,7 +96,8 @@ const ConnectFourOptions = () => {
       </OptionButton>
       <OptionButton 
         bgColor="#2979ff" 
-        rotation="rotate(-3deg)" 
+        rotation="rotate(-3deg)"
+        hoverRotation="rotate(2deg)"
         onClick={() => handleOption('vsOnline')}
       >
         <GameEmoji>🌐</GameEmoji>
@@ -93,7 +105,8 @@ const ConnectFourOptions = () => {
       </OptionButton>
       <OptionButton 
         bgColor="#ffd54f" 
-        rotation="rotate(2deg)" 
+        rotation="rotate(2deg)"
+        hoverRotation="rotate(-3deg)"
         onClick={handleBack}
       >
         <GameEmoji>↩️</GameEmoji>
