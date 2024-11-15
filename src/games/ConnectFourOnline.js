@@ -327,30 +327,45 @@ function ConnectFourOnline() {
     </div>
   );
 
-  const renderLobby = () => (
-  <div className="lobby-container">
-    <h2 className="connect-four-title">Kies een tafel</h2>
-    <div className="tables-container">
-      {tables.map((table, index) => (
-        <div 
-          key={index} 
-          className="connect-four-table" 
-          onClick={() => joinTable(index)}
-          style={{
-            transform: `rotate(${Math.random() * 10 - 5}deg) translate(${Math.random() * 20 - 10}px, ${Math.random() * 20 - 10}px)`
-          }}
-        >
-          <span className="table-name">Tafel {index + 1}</span>
-          <div className="player-slots">
-            <div className={`player-slot ${table.players[0] ? 'occupied' : ''}`}></div>
-            <div className={`player-slot ${table.players[1] ? 'occupied' : ''}`}></div>
-          </div>
-        </div>
-      ))}
+  const renderLobby = () => {
+  const containerWidth = window.innerWidth * 0.9;
+  const containerHeight = window.innerHeight * 0.7;
+
+  return (
+    <div className="lobby-container">
+      <h2 className="connect-four-title">Kies een tafel</h2>
+      <div className="tables-container">
+        {tables.map((table, index) => {
+          const randomX = Math.random() * (containerWidth - 120);
+          const randomY = Math.random() * (containerHeight - 120);
+          const randomRotation = Math.random() * 40 - 20;
+
+          return (
+            <div 
+              key={index} 
+              className="connect-four-table" 
+              onClick={() => joinTable(index)}
+              style={{
+                transform: `rotate(${randomRotation}deg)`,
+                left: `${randomX}px`,
+                top: `${randomY}px`
+              }}
+            >
+              <span className="table-name">Tafel {index + 1}</span>
+              <div className="player-slots">
+                <div className={`player-slot ${table.players[0] ? 'occupied' : ''}`}></div>
+                <div className={`player-slot ${table.players[1] ? 'occupied' : ''}`}></div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div className="back-button-container">
+        <Button onClick={() => setGameState('enterName')} className="connect-four-button">Terug</Button>
+      </div>
     </div>
-    <Button onClick={() => setGameState('enterName')} className="connect-four-button">Terug</Button>
-  </div>
-);
+  );
+};
 
   const renderGame = () => (
     <GameWrapper>
