@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import io from 'socket.io-client';
 import Confetti from 'react-confetti';
-import './ConnectFour.css';
 
 const socket = io(process.env.REACT_APP_SERVER_URL || '');
 
@@ -37,7 +36,7 @@ const Cell = styled.div`
   transition: all 0.3s ease;
 
   &:hover {
-    background: #E3F2FD;
+    background: ${props => props.isCurrentPlayer ? '#E3F2FD' : 'white'};
   }
 
   &::after {
@@ -59,58 +58,54 @@ const Status = styled.div`
   font-weight: bold;
 `;
 
-const Button = styled.button`
-  color: white;
-  font-weight: bold;
-  padding: 0.8rem 1.2rem;
-  border-radius: 9999px;
-  border: none;
-  cursor: pointer;
-  font-size: 1rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-  margin: 0.5rem;
-  background-color: #00c853;
+const ScoreBoard = styled.div`
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 1rem;
+`;
 
-  &:hover {
-    transform: scale(1.05);
-    box-shadow: 0 6px 8px -2px rgba(0, 0, 0, 0.15);
-  }
+const PlayerScore = styled.div`
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: ${props => props.color};
 `;
 
 function ConnectFourOnline() {
   const [playerName, setPlayerName] = useState('');
-  const [gameState, setGameState] = useState('enterName'); // 'enterName', 'lobby', 'game', 'gameOver'
-  const [tables, setTables] = useState(Array(10).fill({ players: [] }));
+  const [gameState, setGameState] = useState('enterName');
   const [currentTable, setCurrentTable] = useState(null);
   const [board, setBoard] = useState(Array(6).fill().map(() => Array(7).fill('')));
-  const [currentPlayer, setCurrentPlayer] = useState('red');
+  const [currentPlayer, setCurrentPlayer] = useState('');
+  const [playerColor, setPlayerColor] = useState('');
   const [status, setStatus] = useState('Wachten op tegenstander...');
   const [showConfetti, setShowConfetti] = useState(false);
+  const [scores, setScores] = useState({ red: 0, yellow: 0 });
+  const [players, setPlayers] = useState({ red: '', yellow: '' });
 
   useEffect(() => {
-    socket.on('tablesUpdate', (updatedTables) => {
-      setTables(updatedTables);
+    socket.on('gameStart', ({ startingPlayer, players: gamePlayers }) => {
+      setCurrentPlayer(startingPlayer);
+      setPlayers(gamePlayers);
+      setGameState('game');
+      setStatus(`${gamePlayers[startingPlayer]} is aan de beurt`);
     });
 
-    socket.on('joinedTable', (table) => {
-      setCurrentTable(table);
-      if (table.players.length === 2) {
-        setGameState('game');
-        setStatus('Rode speler is aan de beurt');
-      }
+    socket.on('playerColor', (color) => {
+      setPlayerColor(color);
     });
 
     socket.on('gameUpdate', (updatedBoard, nextPlayer) => {
       setBoard(updatedBoard);
       setCurrentPlayer(nextPlayer);
-      setStatus(`${nextPlayer === 'red' ? 'Rode' : 'Gele'} speler is aan de beurt`);
+      setStatus(`${players[nextPlayer]} is aan de beurt`);
     });
 
     socket.on('gameOver', (winner) => {
       if (winner) {
-        setStatus(`${winner === 'red' ? 'Rode' : 'Gele'} speler wint!`);
+        setStatus(`${players[winner]} wint!`);
         setShowConfetti(true);
+        setScores(prev => ({ ...prev, [winner]: prev[winner] + 1 }));
       } else {
         setStatus('Gelijkspel!');
       }
@@ -118,88 +113,34 @@ function ConnectFourOnline() {
     });
 
     return () => {
-      socket.off('tablesUpdate');
-      socket.off('joinedTable');
+      socket.off('gameStart');
+      socket.off('playerColor');
       socket.off('gameUpdate');
       socket.off('gameOver');
     };
-  }, []);
-
-  const handleNameSubmit = (e) => {
-    e.preventDefault();
-    if (playerName.trim()) {
-      socket.emit('setName', playerName);
-      setGameState('lobby');
-    }
-  };
-
-  const joinTable = (tableIndex) => {
-    socket.emit('joinTable', tableIndex);
-  };
+  }, [players]);
 
   const makeMove = (col) => {
-    if (gameState === 'game' && currentTable) {
+    if (gameState === 'game' && currentPlayer === playerColor) {
       socket.emit('makeMove', currentTable.id, col);
     }
   };
 
   const playAgain = () => {
-    if (currentTable) {
-      socket.emit('playAgain', currentTable.id);
-      setBoard(Array(6).fill().map(() => Array(7).fill('')));
-      setCurrentPlayer('red');
-      setStatus('Wachten op tegenstander...');
-      setShowConfetti(false);
-      setGameState('game');
-    }
+    socket.emit('playAgain', currentTable.id);
+    setBoard(Array(6).fill().map(() => Array(7).fill('')));
+    setStatus('Wachten op tegenstander...');
+    setShowConfetti(false);
+    setGameState('game');
   };
-
-  const renderNameEntry = () => (
-    <GameWrapper>
-      <h1 className="connect-four-title">Speel 4 op een rij online</h1>
-      <form onSubmit={handleNameSubmit}>
-        <input
-          className="connect-four-input"
-          type="text"
-          value={playerName}
-          onChange={(e) => setPlayerName(e.target.value)}
-          placeholder="Voer je naam in"
-        />
-        <Button type="submit">Start</Button>
-      </form>
-    </GameWrapper>
-  );
-
-  const renderLobby = () => (
-    <GameWrapper>
-      <h2 className="connect-four-title">Beschikbare tafels</h2>
-      <div className="connect-four-lobby-scroll">
-        <div className="connect-four-lobby">
-          {tables.map((table, index) => (
-            <div key={index} className="connect-four-table">
-              <div className="table-info">
-                <span className="table-name">Tafel {index + 1}</span>
-                <span className="player-count">{table.players.length}/2 spelers</span>
-              </div>
-              {table.players.map((player, i) => (
-                <p key={i} className="player-name">{player.name}</p>
-              ))}
-              {table.players.length < 2 && (
-                <Button onClick={() => joinTable(index)}>
-                  Deelnemen
-                </Button>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-    </GameWrapper>
-  );
 
   const renderGame = () => (
     <GameWrapper>
       {showConfetti && <Confetti />}
-      <h2>4 op een Rij - Online spel</h2>
+      <ScoreBoard>
+        <PlayerScore color="#F44336">{players.red}: {scores.red}</PlayerScore>
+        <PlayerScore color="#FFEB3B">{players.yellow}: {scores.yellow}</PlayerScore>
+      </ScoreBoard>
       <Board>
         {board.map((row, rowIndex) =>
           row.map((cell, colIndex) => (
@@ -207,14 +148,17 @@ function ConnectFourOnline() {
               key={`${rowIndex}-${colIndex}`}
               player={cell}
               onClick={() => makeMove(colIndex)}
+              isCurrentPlayer={currentPlayer === playerColor}
             />
           ))
         )}
       </Board>
       <Status>{status}</Status>
-      {gameState === 'gameOver' && <Button onClick={playAgain}>Nieuw spel</Button>}
+      {gameState === 'gameOver' && <button onClick={playAgain}>Nieuw spel</button>}
     </GameWrapper>
   );
+
+  // ... (rest of the component remains the same)
 
   return (
     <div>
