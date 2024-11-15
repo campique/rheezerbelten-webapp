@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import io from 'socket.io-client';
+import './ConnectFour.css';
 
-const socket = io(process.env.REACT_APP_SERVER_URL || '');
+const socket = io('http://localhost:3001');
 
-const ConnectFourOnline = () => {
+function ConnectFourOnline() {
+  const { t } = useTranslation();
   const [playerName, setPlayerName] = useState('');
-  const [gameState, setGameState] = useState('enterName'); // 'enterName', 'lobby', 'game', 'gameOver'
-  const [tables, setTables] = useState(Array(10).fill({ players: [] }));
+  const [showLobby, setShowLobby] = useState(false);
+  const [tables, setTables] = useState([]);
   const [currentTable, setCurrentTable] = useState(null);
   const [board, setBoard] = useState(Array(6).fill().map(() => Array(7).fill(null)));
   const [currentPlayer, setCurrentPlayer] = useState('red');
-  const [scores, setScores] = useState({ red: 0, yellow: 0 });
   const [winner, setWinner] = useState(null);
+  const [scores, setScores] = useState({ red: 0, yellow: 0 });
 
   useEffect(() => {
     socket.on('tablesUpdate', (updatedTables) => {
@@ -20,9 +23,7 @@ const ConnectFourOnline = () => {
 
     socket.on('joinedTable', (table) => {
       setCurrentTable(table);
-      if (table.players.length === 2) {
-        setGameState('game');
-      }
+      setShowLobby(false);
     });
 
     socket.on('gameUpdate', (updatedBoard, nextPlayer) => {
@@ -30,10 +31,9 @@ const ConnectFourOnline = () => {
       setCurrentPlayer(nextPlayer);
     });
 
-    socket.on('gameOver', (winner, updatedScores) => {
-      setWinner(winner);
+    socket.on('gameOver', (winningPlayer, updatedScores) => {
+      setWinner(winningPlayer);
       setScores(updatedScores);
-      setGameState('gameOver');
     });
 
     return () => {
@@ -44,108 +44,105 @@ const ConnectFourOnline = () => {
     };
   }, []);
 
-  const handleNameSubmit = (e) => {
-    e.preventDefault();
+  const handleSetName = () => {
     if (playerName.trim()) {
       socket.emit('setName', playerName);
-      setGameState('lobby');
+      setShowLobby(true);
     }
   };
 
-  const joinTable = (tableIndex) => {
+  const handleJoinTable = (tableIndex) => {
     socket.emit('joinTable', tableIndex);
   };
 
-  const makeMove = (col) => {
-    socket.emit('makeMove', currentTable.id, col);
-  };
-
-  const playAgain = (choice) => {
-    socket.emit('playAgain', currentTable.id, choice);
-    if (!choice) {
-      setGameState('lobby');
-      setCurrentTable(null);
+  const handleCellClick = (col) => {
+    if (currentTable && !winner) {
+      socket.emit('makeMove', currentTable.id, col);
     }
   };
 
-  const renderNameEntry = () => (
-    <form onSubmit={handleNameSubmit}>
-      <input
-        type="text"
-        value={playerName}
-        onChange={(e) => setPlayerName(e.target.value)}
-        placeholder="Voer je naam in"
-      />
-      <button type="submit">Ga naar Lobby</button>
-    </form>
-  );
+  const handlePlayAgain = (choice) => {
+    socket.emit('playAgain', currentTable.id, choice);
+    if (!choice) {
+      setCurrentTable(null);
+      setShowLobby(true);
+      setWinner(null);
+      setBoard(Array(6).fill().map(() => Array(7).fill(null)));
+    }
+  };
 
-  const renderLobby = () => (
-    <div>
-      <h2>Lobby</h2>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' }}>
-        {tables.map((table, index) => (
-          <div key={index} style={{ border: '1px solid black', padding: '10px' }}>
-            <h3>Tafel {index + 1}</h3>
-            {table.players.map((player, i) => (
-              <p key={i}>{player.name}</p>
-            ))}
-            {table.players.length < 2 && (
-              <button onClick={() => joinTable(index)}>Deelnemen</button>
-            )}
-          </div>
-        ))}
+  if (!showLobby && !currentTable) {
+    return (
+      <div className="connect-four-container">
+        <h1 className="connect-four-title">{t('Speel 4 op een rij online')}</h1>
+        <input
+          className="connect-four-input"
+          type="text"
+          placeholder={t('Voer je naam in')}
+          value={playerName}
+          onChange={(e) => setPlayerName(e.target.value)}
+        />
+        <button className="connect-four-button" onClick={handleSetName}>
+          {t('Start')}
+        </button>
       </div>
-    </div>
-  );
+    );
+  }
 
-  const renderGame = () => (
-    <div>
-      <h2>Connect Four</h2>
-      <div>Huidige Speler: {currentPlayer}</div>
-      <div>Scores: Rood {scores.red} - {scores.yellow} Geel</div>
-      <div style={{ display: 'flex', flexDirection: 'column' }}>
-        {board.map((row, rowIndex) => (
-          <div key={rowIndex} style={{ display: 'flex' }}>
-            {row.map((cell, colIndex) => (
-              <div
-                key={colIndex}
-                onClick={() => makeMove(colIndex)}
-                style={{
-                  width: 50,
-                  height: 50,
-                  border: '1px solid black',
-                  backgroundColor: cell || 'white',
-                  cursor: 'pointer'
-                }}
-              />
-            ))}
-          </div>
-        ))}
+  if (showLobby) {
+    return (
+      <div className="connect-four-container">
+        <h2 className="connect-four-title">{t('Beschikbare tafels')}</h2>
+        <div className="connect-four-lobby">
+          {tables.map((table, index) => (
+            <div key={index} className="connect-four-table">
+              <span>{t('Tafel')} {index + 1}</span>
+              <span>{table.players.length}/2 {t('spelers')}</span>
+              <button
+                className="connect-four-button"
+                onClick={() => handleJoinTable(index)}
+                disabled={table.players.length === 2}
+              >
+                {t('Deelnemen')}
+              </button>
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
-  );
-
-  const renderGameOver = () => (
-    <div>
-      <h2>Spel Afgelopen</h2>
-      <p>{winner ? `Winnaar: ${winner}` : 'Gelijkspel!'}</p>
-      <p>Scores: Rood {scores.red} - {scores.yellow} Geel</p>
-      <p>Nog een potje spelen?</p>
-      <button onClick={() => playAgain(true)}>Ja</button>
-      <button onClick={() => playAgain(false)}>Nee</button>
-    </div>
-  );
+    );
+  }
 
   return (
-    <div>
-      <h1>Connect Four Online</h1>
-      {gameState === 'enterName' && renderNameEntry()}
-      {gameState === 'lobby' && renderLobby()}
-      {gameState === 'game' && renderGame()}
-      {gameState === 'gameOver' && renderGameOver()}
+    <div className="connect-four">
+      <div className="status">
+        {winner
+          ? winner === 'draw'
+            ? t('Gelijkspel!')
+            : `${t('Winnaar')}: ${winner}`
+          : `${t('Huidige speler')}: ${currentPlayer}`}
+      </div>
+      <div className="scoreboard">
+        {t('Rood')}: {scores.red} - {t('Geel')}: {scores.yellow}
+      </div>
+      <div className="board">
+        {board.map((row, rowIndex) =>
+          row.map((cell, colIndex) => (
+            <div
+              key={`${rowIndex}-${colIndex}`}
+              className={`cell ${cell || ''}`}
+              onClick={() => handleCellClick(colIndex)}
+            />
+          ))
+        )}
+      </div>
+      {winner && (
+        <div className="rematch-section">
+          <button onClick={() => handlePlayAgain(true)}>{t('Opnieuw spelen')}</button>
+          <button onClick={() => handlePlayAgain(false)}>{t('Terug naar lobby')}</button>
+        </div>
+      )}
     </div>
   );
-};
+}
 
 export default ConnectFourOnline;
