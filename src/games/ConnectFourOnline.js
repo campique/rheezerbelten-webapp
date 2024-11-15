@@ -87,22 +87,31 @@ const ConnectFourOnline = () => {
   const [playerColor, setPlayerColor] = useState(null);
 
   useEffect(() => {
+    console.log('Attempting to connect to socket');
     const newSocket = io(window.location.origin);
+    console.log('Socket connection established');
     setSocket(newSocket);
 
+    newSocket.on('connect', () => {
+      console.log('Connected to server');
+    });
+
     newSocket.on('gameStart', ({ color }) => {
+      console.log('Game started, player color:', color);
       setPlayerColor(color);
       setGameActive(true);
       setStatus(`${color === 'red' ? 'Rode' : 'Gele'} speler is aan de beurt`);
     });
 
     newSocket.on('gameUpdate', ({ gameState, currentPlayer }) => {
+      console.log('Game updated', gameState, currentPlayer);
       setGameState(gameState);
       setCurrentPlayer(currentPlayer);
       setStatus(`${currentPlayer === 'red' ? 'Rode' : 'Gele'} speler is aan de beurt`);
     });
 
     newSocket.on('gameOver', ({ winner }) => {
+      console.log('Game over, winner:', winner);
       setGameActive(false);
       if (winner === 'draw') {
         setStatus('Gelijkspel!');
@@ -112,15 +121,25 @@ const ConnectFourOnline = () => {
       }
     });
 
-    return () => newSocket.close();
+    newSocket.on('waiting', () => {
+      console.log('Waiting for opponent');
+      setStatus('Wachten op tegenstander...');
+    });
+
+    return () => {
+      console.log('Disconnecting socket');
+      newSocket.close();
+    };
   }, []);
 
   const handleCellClick = (col) => {
     if (!gameActive || currentPlayer !== playerColor) return;
+    console.log('Making move', col);
     socket.emit('makeMove', { col });
   };
 
   const resetGame = () => {
+    console.log('Resetting game');
     socket.emit('resetGame');
   };
 
@@ -140,8 +159,8 @@ const ConnectFourOnline = () => {
         )}
       </Board>
       <Status>{status}</Status>
-      <Button onClick={resetGame} disabled={!gameActive}>Nieuw spel</Button>
-      <Button onClick={() => navigate('/games/connect-four')}>Terug naar opties</Button>
+      <Button onClick={resetGame} disabled={!gameActive}>Reset Spel</Button>
+      <Button onClick={() => navigate('/')}>Terug naar Home</Button>
     </GameWrapper>
   );
 };
