@@ -6,6 +6,10 @@ import './ConnectFour.css';
 
 const socket = io(process.env.REACT_APP_SERVER_URL || '');
 
+const GlobalStyle = styled.div`
+  font-family: 'Fredoka One', cursive;
+`;
+
 const GameWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -89,6 +93,25 @@ const Button = styled.button`
     transform: scale(1.05);
     box-shadow: 0 6px 8px -2px rgba(0, 0, 0, 0.15);
   }
+`;
+
+const NameEntryForm = styled.form`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto;
+`;
+
+const NameInput = styled.input`
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 2px solid #2196F3;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-family: 'Fredoka One', cursive;
 `;
 
 function ConnectFourOnline() {
@@ -182,17 +205,16 @@ function ConnectFourOnline() {
 
   const renderNameEntry = () => (
     <div className="connect-four-container">
-      <h1 className="connect-four-title">Speel 4 op een rij online</h1>
-      <form onSubmit={handleNameSubmit}>
-        <input
-          className="connect-four-input"
+      <h1 className="connect-four-title">Speel online</h1>
+      <NameEntryForm onSubmit={handleNameSubmit}>
+        <NameInput
           type="text"
           value={playerName}
           onChange={(e) => setPlayerName(e.target.value)}
           placeholder="Voer je naam in"
         />
-        <button className="connect-four-button" type="submit">Start</button>
-      </form>
+        <Button type="submit">Start</Button>
+      </NameEntryForm>
     </div>
   );
 
@@ -250,11 +272,11 @@ function ConnectFourOnline() {
   );
 
   return (
-    <div>
+    <GlobalStyle>
       {gameState === 'enterName' && renderNameEntry()}
       {gameState === 'lobby' && renderLobby()}
       {(gameState === 'game' || gameState === 'gameOver') && renderGame()}
-    </div>
+    </GlobalStyle>
   );
 }
 
