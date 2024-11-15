@@ -2,140 +2,98 @@
   max-width: 600px;
   margin: 0 auto;
   padding: 20px;
-  font-family: Arial, sans-serif;
+  font-family: 'Comic Sans MS', cursive, sans-serif;
+  background-color: #FFD54F;
+  border-radius: 20px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.1);
 }
 
 .connect-four-title {
   text-align: center;
-  color: #2196F3;
+  color: #FF5722;
+  font-size: 2.5em;
   margin-bottom: 20px;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
 }
 
 .connect-four-input {
   width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 2px solid #2196F3;
-  border-radius: 5px;
-  font-size: 16px;
+  padding: 15px;
+  margin-bottom: 15px;
+  border: 3px solid #4CAF50;
+  border-radius: 10px;
+  font-size: 18px;
+  background-color: #FFECB3;
 }
 
 .connect-four-button {
-  background-color: #2196F3;
+  background-color: #4CAF50;
   color: white;
   border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  font-size: 16px;
+  padding: 15px 30px;
+  border-radius: 10px;
+  font-size: 18px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.3s;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
 .connect-four-button:hover {
-  background-color: #1976D2;
-}
-
-.connect-four-button:disabled {
-  background-color: #BDBDBD;
-  cursor: not-allowed;
+  background-color: #45a049;
+  transform: scale(1.05);
 }
 
 .connect-four-lobby-scroll {
   max-height: 70vh;
   overflow-y: auto;
-  scrollbar-width: none; /* Voor Firefox */
-  -ms-overflow-style: none; /* Voor Internet Explorer en Edge */
-}
-
-.connect-four-lobby-scroll::-webkit-scrollbar {
-  display: none; /* Voor Chrome, Safari, en Opera */
-}
-
-.connect-four-lobby {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  padding-right: 20px; /* Voeg wat ruimte toe aan de rechterkant */
+  background-color: #FFF9C4;
+  border-radius: 15px;
+  padding: 15px;
 }
 
 .connect-four-table {
-  background-color: #E3F2FD;
-  border-radius: 10px;
+  background-color: #81C784;
+  border-radius: 15px;
   padding: 15px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  transition: box-shadow 0.3s;
+  margin-bottom: 15px;
+  transition: all 0.3s;
 }
 
 .connect-four-table:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.table-info {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  margin-bottom: 10px;
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
 
 .table-name {
   font-weight: bold;
   color: #1565C0;
+  font-size: 1.2em;
 }
 
 .player-count {
-  color: #757575;
+  color: #FF5722;
+  font-weight: bold;
 }
 
 .join-button {
-  width: 100%;
+  background-color: #FF5722;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-top: 10px;
+}
+
+.join-button:hover {
+  background-color: #E64A19;
+  transform: scale(1.05);
 }
 
 .player-name {
   margin: 5px 0;
   color: #333;
-}
-
-/* Stijlen voor het spelbord */
-.connect-four {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.status {
-  font-size: 18px;
-  margin-bottom: 10px;
-}
-
-.scoreboard {
-  font-size: 16px;
-  margin-bottom: 20px;
-}
-
-.board {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 5px;
-  background-color: #1976D2;
-  padding: 10px;
-  border-radius: 10px;
-}
-
-.cell {
-  width: 50px;
-  height: 50px;
-  background-color: white;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.cell.red {
-  background-color: #FF5252;
-}
-
-.cell.yellow {
-  background-color: #FFD740;
+  font-size: 1.1em;
 }
