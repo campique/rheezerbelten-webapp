@@ -2,54 +2,44 @@ import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import styled from 'styled-components';
 
-const OptionsContainer = styled.div`
+const OptionsWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 1rem;
   padding: 2rem;
-  background-color: #f0f0f0;
-  min-height: 100vh;
 `;
 
-const OptionsList = styled.div`
-  display: flex;
-  justify-content: space-around;
-  flex-wrap: wrap;
-  width: 100%;
-  max-width: 1200px;
-`;
-
-const OptionItem = styled.div`
-  width: 200px;
-  margin: 1rem;
+const OptionButton = styled.button`
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+  padding: 15px 32px;
   text-align: center;
-  color: #333;
-  background-color: white;
-  border: 2px solid #ddd;
-  border-radius: 8px;
-  padding: 1rem;
-  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
   cursor: pointer;
+  border-radius: 12px;
+  transition: all 0.3s ease;
 
   &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    background-color: #45a049;
+    transform: scale(1.05);
   }
 `;
 
-const OptionEmoji = styled.span`
-  font-size: 4rem;
-`;
-
-const OptionTitle = styled.h3`
-  margin-top: 1rem;
+const Title = styled.h2`
+  color: #333;
+  margin-bottom: 1rem;
 `;
 
 const BackButton = styled(Link)`
   margin-top: 2rem;
   padding: 0.5rem 1rem;
   font-size: 1rem;
-  background-color: #4CAF50;
+  background-color: #2196F3;
   color: white;
   text-decoration: none;
   border: none;
@@ -58,7 +48,7 @@ const BackButton = styled(Link)`
   transition: background-color 0.3s;
 
   &:hover {
-    background-color: #45a049;
+    background-color: #1E88E5;
   }
 `;
 
@@ -82,24 +72,19 @@ const ConnectFourOptions = () => {
   };
 
   return (
-    <OptionsContainer>
-      <h2>Kies een spelmodus</h2>
-      <OptionsList>
-        <OptionItem onClick={() => handleOption('vsKnof')}>
-          <OptionEmoji>🤖</OptionEmoji>
-          <OptionTitle>Speel tegen Knof</OptionTitle>
-        </OptionItem>
-        <OptionItem onClick={() => handleOption('vsLocal')}>
-          <OptionEmoji>👥</OptionEmoji>
-          <OptionTitle>Speel lokaal tegen een vriend</OptionTitle>
-        </OptionItem>
-        <OptionItem onClick={() => handleOption('vsOnline')}>
-          <OptionEmoji>🌐</OptionEmoji>
-          <OptionTitle>Speel online</OptionTitle>
-        </OptionItem>
-      </OptionsList>
+    <OptionsWrapper>
+      <Title>Kies een spelmodus</Title>
+      <OptionButton onClick={() => handleOption('vsKnof')}>
+        Speel tegen Knof
+      </OptionButton>
+      <OptionButton onClick={() => handleOption('vsLocal')}>
+        Speel lokaal tegen een vriend
+      </OptionButton>
+      <OptionButton onClick={() => handleOption('vsOnline')}>
+        Speel online
+      </OptionButton>
       <BackButton to="/games">Terug naar spelletjes</BackButton>
-    </OptionsContainer>
+    </OptionsWrapper>
   );
 };
 
