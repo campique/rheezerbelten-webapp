@@ -98,9 +98,9 @@ io.on('connection', (socket) => {
           const winningLine = checkWin(table.board, table.currentPlayer);
           if (winningLine) {
             table.scores[table.currentPlayer]++;
-            io.to(table.id).emit('gameOver', table.currentPlayer, winningLine);
+            io.to(table.id).emit('gameOver', { winner: table.currentPlayer, line: winningLine });
           } else if (table.board.every(row => row.every(cell => cell !== ''))) {
-            io.to(table.id).emit('gameOver', null, null);
+            io.to(table.id).emit('gameOver', { winner: null, line: null });
           } else {
             table.currentPlayer = table.currentPlayer === 'red' ? 'yellow' : 'red';
             io.to(table.id).emit('gameUpdate', table.board, table.currentPlayer);
