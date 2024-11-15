@@ -148,7 +148,7 @@ function ConnectFourOnline() {
   const [winningCells, setWinningCells] = useState([]);
   const [lastWinningCell, setLastWinningCell] = useState(null);
   const [showRematchQuestion, setShowRematchQuestion] = useState(false);
-  const [rematchVotes, setRematchVotes] = useState({ red: false, yellow: false });
+  const [rematchVotes, setRematchVotes] = useState({ red: null, yellow: null });
 
   useEffect(() => {
     socket.on('tablesUpdate', (updatedTables) => {
@@ -254,7 +254,7 @@ function ConnectFourOnline() {
     setLastWinningCell(null);
     setGameState('game');
     setShowRematchQuestion(false);
-    setRematchVotes({ red: false, yellow: false });
+    setRematchVotes({ red: null, yellow: null });
   };
 
   const returnToLobby = () => {
@@ -268,7 +268,7 @@ function ConnectFourOnline() {
     setPlayers({ red: '', yellow: '' });
     setGameState('lobby');
     setShowRematchQuestion(false);
-    setRematchVotes({ red: false, yellow: false });
+    setRematchVotes({ red: null, yellow: null });
   };
 
   const renderNameEntry = () => (
@@ -340,9 +340,9 @@ function ConnectFourOnline() {
       {showRematchQuestion ? (
         <div>
           <p>Wil je nog een keer spelen?</p>
-          <Button onClick={() => voteRematch(true)} disabled={rematchVotes[playerColor]}>Ja</Button>
-          <Button onClick={() => voteRematch(false)} disabled={rematchVotes[playerColor]}>Nee</Button>
-          {rematchVotes[playerColor] && <p>Wachten op de andere speler...</p>}
+          <Button onClick={() => voteRematch(true)} disabled={rematchVotes[playerColor] !== null}>Ja</Button>
+          <Button onClick={() => voteRematch(false)} disabled={rematchVotes[playerColor] !== null}>Nee</Button>
+          {rematchVotes[playerColor] !== null && <p>Wachten op de andere speler...</p>}
         </div>
       ) : (
         gameState !== 'gameOver' && <Button onClick={returnToLobby}>Terug naar lobby</Button>
