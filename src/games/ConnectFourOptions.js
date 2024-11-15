@@ -7,14 +7,14 @@ const OptionsContainer = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
-  background-color: #f0f0f0;
+  min-height: 100vh;
+  padding: 20px;
 `;
 
 const OptionButton = styled.div`
   background-color: ${props => props.bgColor};
   color: white;
-  padding: 20px;
+  padding: 15px;
   margin: 10px;
   border-radius: 10px;
   cursor: pointer;
@@ -24,8 +24,8 @@ const OptionButton = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 200px;
-  height: 100px;
+  width: 160px;
+  height: 80px;
 
   &:hover {
     transform: scale(1.05) ${props => props.rotation};
@@ -33,12 +33,12 @@ const OptionButton = styled.div`
 `;
 
 const GameEmoji = styled.span`
-  font-size: 2rem;
-  margin-bottom: 10px;
+  font-size: 1.5rem;
+  margin-bottom: 5px;
 `;
 
 const GameTitle = styled.span`
-  font-size: 1.2rem;
+  font-size: 1rem;
   text-align: center;
 `;
 
@@ -81,7 +81,7 @@ const ConnectFourOptions = () => {
         onClick={() => handleOption('vsLocal')}
       >
         <GameEmoji>👥</GameEmoji>
-        <GameTitle>Speel lokaal tegen een vriend</GameTitle>
+        <GameTitle>Speel lokaal</GameTitle>
       </OptionButton>
       <OptionButton 
         bgColor="#2979ff" 
@@ -97,7 +97,7 @@ const ConnectFourOptions = () => {
         onClick={handleBack}
       >
         <GameEmoji>↩️</GameEmoji>
-        <GameTitle>Terug naar spelletjes</GameTitle>
+        <GameTitle>Terug</GameTitle>
       </OptionButton>
     </OptionsContainer>
   );
