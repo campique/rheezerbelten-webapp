@@ -88,26 +88,28 @@ function ConnectFourOnline() {
   const renderLobby = () => (
     <div className="connect-four-container">
       <h2 className="connect-four-title">Beschikbare tafels</h2>
-      <div className="connect-four-lobby">
-        {tables.map((table, index) => (
-          <div key={index} className="connect-four-table">
-            <div className="table-info">
-              <span className="table-name">Tafel {index + 1}</span>
-              <span className="player-count">{table.players.length}/2 spelers</span>
+      <div className="connect-four-lobby-scroll">
+        <div className="connect-four-lobby">
+          {tables.map((table, index) => (
+            <div key={index} className="connect-four-table">
+              <div className="table-info">
+                <span className="table-name">Tafel {index + 1}</span>
+                <span className="player-count">{table.players.length}/2 spelers</span>
+              </div>
+              {table.players.map((player, i) => (
+                <p key={i} className="player-name">{player.name}</p>
+              ))}
+              {table.players.length < 2 && (
+                <button
+                  className="connect-four-button join-button"
+                  onClick={() => joinTable(index)}
+                >
+                  Deelnemen
+                </button>
+              )}
             </div>
-            {table.players.map((player, i) => (
-              <p key={i} className="player-name">{player.name}</p>
-            ))}
-            {table.players.length < 2 && (
-              <button
-                className="connect-four-button join-button"
-                onClick={() => joinTable(index)}
-              >
-                Deelnemen
-              </button>
-            )}
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
