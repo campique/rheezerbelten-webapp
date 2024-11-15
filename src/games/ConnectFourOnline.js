@@ -106,6 +106,12 @@ const Button = styled.button`
     transform: scale(1.05);
     box-shadow: 0 6px 8px -2px rgba(0, 0, 0, 0.15);
   }
+
+  &:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    transform: none;
+  }
 `;
 
 const NameEntryForm = styled.form`
@@ -142,6 +148,7 @@ function ConnectFourOnline() {
   const [winningCells, setWinningCells] = useState([]);
   const [lastWinningCell, setLastWinningCell] = useState(null);
   const [showRematchQuestion, setShowRematchQuestion] = useState(false);
+  const [rematchVotes, setRematchVotes] = useState({ red: false, yellow: false });
 
   useEffect(() => {
     socket.on('tablesUpdate', (updatedTables) => {
@@ -199,6 +206,10 @@ function ConnectFourOnline() {
       returnToLobby();
     });
 
+    socket.on('rematchVoteUpdate', (votes) => {
+      setRematchVotes(votes);
+    });
+
     return () => {
       socket.off('tablesUpdate');
       socket.off('joinedTable');
@@ -208,6 +219,7 @@ function ConnectFourOnline() {
       socket.off('gameOver');
       socket.off('rematchAccepted');
       socket.off('returnToLobby');
+      socket.off('rematchVoteUpdate');
     };
   }, [players, playerColor]);
 
@@ -232,7 +244,6 @@ function ConnectFourOnline() {
 
   const voteRematch = (vote) => {
     socket.emit('rematchVote', currentTable.id, playerColor, vote);
-    setShowRematchQuestion(false);
   };
 
   const startNewGame = () => {
@@ -242,10 +253,11 @@ function ConnectFourOnline() {
     setWinningCells([]);
     setLastWinningCell(null);
     setGameState('game');
+    setShowRematchQuestion(false);
+    setRematchVotes({ red: false, yellow: false });
   };
 
   const returnToLobby = () => {
-    socket.emit('leaveTable', currentTable.id);
     setCurrentTable(null);
     setBoard(Array(6).fill().map(() => Array(7).fill('')));
     setStatus('Wachten op tegenstander...');
@@ -255,6 +267,8 @@ function ConnectFourOnline() {
     setScores({ red: 0, yellow: 0 });
     setPlayers({ red: '', yellow: '' });
     setGameState('lobby');
+    setShowRematchQuestion(false);
+    setRematchVotes({ red: false, yellow: false });
   };
 
   const renderNameEntry = () => (
@@ -324,11 +338,12 @@ function ConnectFourOnline() {
       </Board>
       <Status>{status}</Status>
       {showRematchQuestion ? (
-        <>
-          <div>Wil je nog een keer spelen?</div>
-          <Button onClick={() => voteRematch(true)}>Ja</Button>
-          <Button onClick={() => voteRematch(false)}>Nee</Button>
-        </>
+        <div>
+          <p>Wil je nog een keer spelen?</p>
+          <Button onClick={() => voteRematch(true)} disabled={rematchVotes[playerColor]}>Ja</Button>
+          <Button onClick={() => voteRematch(false)} disabled={rematchVotes[playerColor]}>Nee</Button>
+          {rematchVotes[playerColor] && <p>Wachten op de andere speler...</p>}
+        </div>
       ) : (
         gameState !== 'gameOver' && <Button onClick={returnToLobby}>Terug naar lobby</Button>
       )}
