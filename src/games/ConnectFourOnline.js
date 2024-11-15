@@ -37,6 +37,12 @@ const blink = keyframes`
   100% { opacity: 1; }
 `;
 
+const pulse = keyframes`
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+`;
+
 const Cell = styled.div`
   width: 100%;
   padding-bottom: 100%;
@@ -60,6 +66,10 @@ const Cell = styled.div`
     border-radius: 50%;
     background-color: ${props => props.player === 'red' ? '#F44336' : props.player === 'yellow' ? '#FFEB3B' : 'transparent'};
     animation: ${props => props.isWinning ? blink : 'none'} 1s linear infinite;
+    ${props => props.isLastWinning && `
+      animation: ${pulse} 0.5s ease-in-out infinite;
+      box-shadow: 0 0 10px 5px gold;
+    `}
   }
 `;
 
@@ -134,6 +144,7 @@ function ConnectFourOnline() {
   const [scores, setScores] = useState({ red: 0, yellow: 0 });
   const [players, setPlayers] = useState({ red: '', yellow: '' });
   const [winningCells, setWinningCells] = useState([]);
+  const [lastWinningCell, setLastWinningCell] = useState(null);
 
   useEffect(() => {
     socket.on('tablesUpdate', (updatedTables) => {
@@ -168,6 +179,9 @@ function ConnectFourOnline() {
       if (winner) {
         setStatus(`${players[winner]} wint!`);
         setWinningCells(winningLine || []);
+        if (winningLine && winningLine.length > 0) {
+          setLastWinningCell(winningLine[winningLine.length - 1]);
+        }
         if (winner === playerColor) {
           setShowConfetti(true);
         }
@@ -212,6 +226,7 @@ function ConnectFourOnline() {
     setStatus('Wachten op tegenstander...');
     setShowConfetti(false);
     setWinningCells([]);
+    setLastWinningCell(null);
     setGameState('game');
   };
 
@@ -275,6 +290,7 @@ function ConnectFourOnline() {
               onClick={() => makeMove(colIndex)}
               isCurrentPlayer={currentPlayer === playerColor}
               isWinning={winningCells.some(([r, c]) => r === rowIndex && c === colIndex)}
+              isLastWinning={lastWinningCell && lastWinningCell[0] === rowIndex && lastWinningCell[1] === colIndex}
             />
           ))
         )}
