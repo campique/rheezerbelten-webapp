@@ -70,28 +70,7 @@ const GameTitle = styled.span`
   font-size: 16px;
 `;
 
-const translations = {
-  nl: {
-    connectFour: "4 op een rij",
-    pancakeDobble: "Pannenkoeken Dobble",
-    pictionary: "Pictionary",
-    back: "Terug",
-    games: "Spelletjes",
-    interactivePlacemat: "Interactieve placemat",
-    talkWithKnof: "Praten met Knof"
-  },
-  de: {
-    connectFour: "Vier gewinnt",
-    pancakeDobble: "Pfannkuchen Dobble",
-    pictionary: "Montagsmaler",
-    back: "Zurück",
-    games: "Spiele",
-    interactivePlacemat: "Interaktives Tischset",
-    talkWithKnof: "Mit Knof sprechen"
-  }
-};
-
-const Menu = ({ currentLanguage, navigateToPage }) => {
+const Menu = ({ navigateToPage }) => {
   const [showGames, setShowGames] = useState(false);
 
   const handleClick = (action) => {
@@ -111,7 +90,7 @@ const Menu = ({ currentLanguage, navigateToPage }) => {
           onClick={() => navigateToPage('/games/connect-four')}
         >
           <GameEmoji>🔴🟡</GameEmoji>
-          <GameTitle>{translations[currentLanguage].connectFour}</GameTitle>
+          <GameTitle>4 op een rij</GameTitle>
         </GameItem>
         <GameItem 
           bgColor="#ff4081" 
@@ -119,7 +98,7 @@ const Menu = ({ currentLanguage, navigateToPage }) => {
           onClick={() => navigateToPage('/games/pancake-dobble')}
         >
           <GameEmoji>🥞🔍</GameEmoji>
-          <GameTitle>{translations[currentLanguage].pancakeDobble}</GameTitle>
+          <GameTitle>Pannenkoeken Dobble</GameTitle>
         </GameItem>
         <GameItem 
           bgColor="#2979ff" 
@@ -127,14 +106,14 @@ const Menu = ({ currentLanguage, navigateToPage }) => {
           onClick={() => navigateToPage('/games/pictionary')}
         >
           <GameEmoji>🎨✏️</GameEmoji>
-          <GameTitle>{translations[currentLanguage].pictionary}</GameTitle>
+          <GameTitle>Pictionary</GameTitle>
         </GameItem>
         <OptionButton 
           bgColor="#ffd54f" 
           rotation="rotate(2deg)" 
           onClick={() => setShowGames(false)}
         >
-          {translations[currentLanguage].back}
+          Terug
         </OptionButton>
       </MenuWrapper>
     );
@@ -147,21 +126,21 @@ const Menu = ({ currentLanguage, navigateToPage }) => {
         rotation="rotate(-5deg)" 
         onClick={() => handleClick('games')}
       >
-        🎮 {translations[currentLanguage].games}
+        🎮 Spelletjes
       </OptionButton>
       <OptionButton 
         bgColor="#ff4081" 
         rotation="rotate(5deg)" 
         onClick={() => handleClick('placemat')}
       >
-        🍽️ {translations[currentLanguage].interactivePlacemat}
+        🍽️ Interactieve placemat
       </OptionButton>
       <OptionButton 
         bgColor="#2979ff" 
         rotation="rotate(-3deg)" 
         onClick={() => handleClick('chat')}
       >
-        🗨️ {translations[currentLanguage].talkWithKnof}
+        🗨️ Praten met Knof
       </OptionButton>
     </MenuWrapper>
   );
