@@ -4,88 +4,7 @@ import './ConnectFour.css';
 
 const socket = io('http://localhost:3001');
 
-// Eenvoudige vertaalfunctie
-const translate = (key, language) => {
-  const translations = {
-    'Speel 4 op een rij online': {
-      nl: 'Speel 4 op een rij online',
-      en: 'Play Connect Four online',
-      de: 'Spiele 4 Gewinnt online'
-    },
-    'Voer je naam in': {
-      nl: 'Voer je naam in',
-      en: 'Enter your name',
-      de: 'Gib deinen Namen ein'
-    },
-    'Start': {
-      nl: 'Start',
-      en: 'Start',
-      de: 'Start'
-    },
-    'Beschikbare tafels': {
-      nl: 'Beschikbare tafels',
-      en: 'Available tables',
-      de: 'Verfügbare Tische'
-    },
-    'Tafel': {
-      nl: 'Tafel',
-      en: 'Table',
-      de: 'Tisch'
-    },
-    'spelers': {
-      nl: 'spelers',
-      en: 'players',
-      de: 'Spieler'
-    },
-    'Deelnemen': {
-      nl: 'Deelnemen',
-      en: 'Join',
-      de: 'Beitreten'
-    },
-    'Gelijkspel!': {
-      nl: 'Gelijkspel!',
-      en: 'Draw!',
-      de: 'Unentschieden!'
-    },
-    'Winnaar': {
-      nl: 'Winnaar',
-      en: 'Winner',
-      de: 'Gewinner'
-    },
-    'Huidige speler': {
-      nl: 'Huidige speler',
-      en: 'Current player',
-      de: 'Aktueller Spieler'
-    },
-    'Rood': {
-      nl: 'Rood',
-      en: 'Red',
-      de: 'Rot'
-    },
-    'Geel': {
-      nl: 'Geel',
-      en: 'Yellow',
-      de: 'Gelb'
-    },
-    'Opnieuw spelen': {
-      nl: 'Opnieuw spelen',
-      en: 'Play again',
-      de: 'Nochmal spielen'
-    },
-    'Terug naar lobby': {
-      nl: 'Terug naar lobby',
-      en: 'Back to lobby',
-      de: 'Zurück zur Lobby'
-    }
-  };
-
-  return translations[key][language] || key;
-};
-
 function ConnectFourOnline() {
-  const [language, setLanguage] = useState('nl'); // Standaardtaal
-  const t = (key) => translate(key, language);
-
   const [playerName, setPlayerName] = useState('');
   const [showLobby, setShowLobby] = useState(false);
   const [tables, setTables] = useState([]);
@@ -153,16 +72,16 @@ function ConnectFourOnline() {
   if (!showLobby && !currentTable) {
     return (
       <div className="connect-four-container">
-        <h1 className="connect-four-title">{t('Speel 4 op een rij online')}</h1>
+        <h1 className="connect-four-title">Speel 4 op een rij online</h1>
         <input
           className="connect-four-input"
           type="text"
-          placeholder={t('Voer je naam in')}
+          placeholder="Voer je naam in"
           value={playerName}
           onChange={(e) => setPlayerName(e.target.value)}
         />
         <button className="connect-four-button" onClick={handleSetName}>
-          {t('Start')}
+          Start
         </button>
       </div>
     );
@@ -171,18 +90,20 @@ function ConnectFourOnline() {
   if (showLobby) {
     return (
       <div className="connect-four-container">
-        <h2 className="connect-four-title">{t('Beschikbare tafels')}</h2>
+        <h2 className="connect-four-title">Beschikbare tafels</h2>
         <div className="connect-four-lobby">
           {tables.map((table, index) => (
             <div key={index} className="connect-four-table">
-              <span>{t('Tafel')} {index + 1}</span>
-              <span>{table.players.length}/2 {t('spelers')}</span>
+              <div className="table-info">
+                <span className="table-name">Tafel {index + 1}</span>
+                <span className="player-count">{table.players.length}/2 spelers</span>
+              </div>
               <button
-                className="connect-four-button"
+                className="connect-four-button join-button"
                 onClick={() => handleJoinTable(index)}
                 disabled={table.players.length === 2}
               >
-                {t('Deelnemen')}
+                {table.players.length === 2 ? 'Vol' : 'Deelnemen'}
               </button>
             </div>
           ))}
@@ -196,12 +117,12 @@ function ConnectFourOnline() {
       <div className="status">
         {winner
           ? winner === 'draw'
-            ? t('Gelijkspel!')
-            : `${t('Winnaar')}: ${winner}`
-          : `${t('Huidige speler')}: ${currentPlayer}`}
+            ? 'Gelijkspel!'
+            : `Winnaar: ${winner}`
+          : `Huidige speler: ${currentPlayer}`}
       </div>
       <div className="scoreboard">
-        {t('Rood')}: {scores.red} - {t('Geel')}: {scores.yellow}
+        Rood: {scores.red} - Geel: {scores.yellow}
       </div>
       <div className="board">
         {board.map((row, rowIndex) =>
@@ -216,8 +137,8 @@ function ConnectFourOnline() {
       </div>
       {winner && (
         <div className="rematch-section">
-          <button onClick={() => handlePlayAgain(true)}>{t('Opnieuw spelen')}</button>
-          <button onClick={() => handlePlayAgain(false)}>{t('Terug naar lobby')}</button>
+          <button onClick={() => handlePlayAgain(true)}>Opnieuw spelen</button>
+          <button onClick={() => handlePlayAgain(false)}>Terug naar lobby</button>
         </div>
       )}
     </div>
