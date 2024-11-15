@@ -141,7 +141,7 @@ function ConnectFourOnline() {
   const [players, setPlayers] = useState({ red: '', yellow: '' });
   const [winningCells, setWinningCells] = useState([]);
   const [lastWinningCell, setLastWinningCell] = useState(null);
-  const [rematchVotes, setRematchVotes] = useState({ red: false, yellow: false });
+  const [showRematchQuestion, setShowRematchQuestion] = useState(false);
 
   useEffect(() => {
     socket.on('tablesUpdate', (updatedTables) => {
@@ -188,15 +188,15 @@ function ConnectFourOnline() {
         setScores(prev => ({ ...prev, [winner]: prev[winner] + 1 }));
       }
       setGameState('gameOver');
-      setRematchVotes({ red: false, yellow: false });
-    });
-
-    socket.on('rematchVote', (color, vote) => {
-      setRematchVotes(prev => ({ ...prev, [color]: vote }));
+      setShowRematchQuestion(true);
     });
 
     socket.on('rematchAccepted', () => {
       startNewGame();
+    });
+
+    socket.on('returnToLobby', () => {
+      returnToLobby();
     });
 
     return () => {
@@ -206,8 +206,8 @@ function ConnectFourOnline() {
       socket.off('playerColor');
       socket.off('gameUpdate');
       socket.off('gameOver');
-      socket.off('rematchVote');
       socket.off('rematchAccepted');
+      socket.off('returnToLobby');
     };
   }, [players, playerColor]);
 
@@ -232,7 +232,7 @@ function ConnectFourOnline() {
 
   const voteRematch = (vote) => {
     socket.emit('rematchVote', currentTable.id, playerColor, vote);
-    setRematchVotes(prev => ({ ...prev, [playerColor]: vote }));
+    setShowRematchQuestion(false);
   };
 
   const startNewGame = () => {
@@ -323,18 +323,14 @@ function ConnectFourOnline() {
         )}
       </Board>
       <Status>{status}</Status>
-      {gameState === 'gameOver' ? (
+      {showRematchQuestion ? (
         <>
-          <Button onClick={() => voteRematch(true)}>Nog een potje</Button>
-          <Button onClick={() => voteRematch(false)}>Terug naar lobby</Button>
-          <div>
-            {Object.entries(rematchVotes).map(([color, vote]) => (
-              <div key={color}>{players[color]}: {vote ? 'Wil nog een potje' : 'Wil stoppen'}</div>
-            ))}
-          </div>
+          <div>Wil je nog een keer spelen?</div>
+          <Button onClick={() => voteRematch(true)}>Ja</Button>
+          <Button onClick={() => voteRematch(false)}>Nee</Button>
         </>
       ) : (
-        <Button onClick={returnToLobby}>Terug naar lobby</Button>
+        gameState !== 'gameOver' && <Button onClick={returnToLobby}>Terug naar lobby</Button>
       )}
     </GameWrapper>
   );
