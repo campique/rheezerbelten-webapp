@@ -172,6 +172,7 @@ function ConnectFourOnline() {
     });
 
     socket.on('gameOver', (winner, winningLine) => {
+      console.log('Game over:', winner, winningLine);
       if (winner === 'draw') {
         setStatus('Gelijkspel!');
       } else {
@@ -212,6 +213,7 @@ function ConnectFourOnline() {
 
   const makeMove = (col) => {
     if (gameState === 'game' && currentPlayer === playerColor) {
+      console.log('Move made:', currentTable.id, col);
       socket.emit('makeMove', currentTable.id, col);
     }
   };
