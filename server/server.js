@@ -11,7 +11,8 @@ let tables = Array(10).fill().map(() => ({
   id: Date.now() + Math.random(), 
   players: [], 
   board: Array(6).fill().map(() => Array(7).fill('')), 
-  currentPlayer: ''
+  currentPlayer: '',
+  rematchVotes: { red: false, yellow: false }
 }));
 
 function checkWin(board, player) {
@@ -113,17 +114,37 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('playAgain', (tableId) => {
+  socket.on('rematchVote', (tableId, color, vote) => {
     const table = tables.find(t => t.id === tableId);
     if (table) {
-      table.board = Array(6).fill().map(() => Array(7).fill(''));
-      const startingPlayer = Math.random() < 0.5 ? 'red' : 'yellow';
-      table.currentPlayer = startingPlayer;
-      const players = {
-        red: table.players.find(p => p.color === 'red').name,
-        yellow: table.players.find(p => p.color === 'yellow').name
-      };
-      io.to(table.id).emit('gameStart', { startingPlayer, players });
+      table.rematchVotes[color] = vote;
+      if (table.rematchVotes.red && table.rematchVotes.yellow) {
+        // Both players voted for rematch
+        table.board = Array(6).fill().map(() => Array(7).fill(''));
+        const startingPlayer = Math.random() < 0.5 ? 'red' : 'yellow';
+        table.currentPlayer = startingPlayer;
+        const players = {
+          red: table.players.find(p => p.color === 'red').name,
+          yellow: table.players.find(p => p.color === 'yellow').name
+        };
+        table.rematchVotes = { red: false, yellow: false };
+        io.to(table.id).emit('rematchAccepted');
+        io.to(table.id).emit('gameStart', { startingPlayer, players });
+      } else if (!table.rematchVotes.red || !table.rematchVotes.yellow) {
+        // One player voted against rematch
+        io.to(table.id).emit('returnToLobby');
+        table.players.forEach(player => {
+          const playerSocket = io.sockets.sockets.get(player.id);
+          if (playerSocket) {
+            playerSocket.leave(table.id);
+          }
+        });
+        table.players = [];
+        table.board = Array(6).fill().map(() => Array(7).fill(''));
+        table.currentPlayer = '';
+        table.rematchVotes = { red: false, yellow: false };
+        io.emit('tablesUpdate', tables);
+      }
     }
   });
 
@@ -134,6 +155,7 @@ io.on('connection', (socket) => {
         table.players.splice(playerIndex, 1);
         table.board = Array(6).fill().map(() => Array(7).fill(''));
         table.currentPlayer = '';
+        table.rematchVotes = { red: false, yellow: false };
         if (table.players.length === 1) {
           io.to(table.id).emit('joinedTable', table);
         }
