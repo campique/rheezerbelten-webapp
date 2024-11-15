@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 import io from 'socket.io-client';
 import Confetti from 'react-confetti';
 import './ConnectFour.css';
@@ -31,12 +31,6 @@ const Board = styled.div`
   aspect-ratio: 7 / 6;
 `;
 
-const blink = keyframes`
-  0% { opacity: 1; }
-  50% { opacity: 0.5; }
-  100% { opacity: 1; }
-`;
-
 const Cell = styled.div`
   width: 100%;
   aspect-ratio: 1 / 1;
@@ -60,8 +54,14 @@ const Cell = styled.div`
     border-radius: 50%;
     background-color: ${props => props.player === 'red' ? '#F44336' : props.player === 'yellow' ? '#FFEB3B' : 'transparent'};
     ${props => props.isWinning && `
-      animation: ${blink} 0.7s ease-in-out infinite;
+      animation: blink 0.7s ease-in-out infinite;
     `}
+  }
+
+  @keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
   }
 `;
 
@@ -221,7 +221,7 @@ function ConnectFourOnline() {
 
   const renderNameEntry = () => (
     <div className="connect-four-container">
-      <h1 className="connect-four-title">Speel 4 op een rij online</h1>
+      <h1 className="connect-four-title">Speel online</h1>
       <NameEntryForm onSubmit={handleNameSubmit}>
         <NameInput
           type="text"
