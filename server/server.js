@@ -15,6 +15,20 @@ let tables = Array(10).fill().map(() => ({
   rematchVotes: { red: null, yellow: null }
 }));
 
+function removePlayerFromAllTables(playerId) {
+  tables.forEach(table => {
+    const playerIndex = table.players.findIndex(p => p.id === playerId);
+    if (playerIndex !== -1) {
+      table.players.splice(playerIndex, 1);
+      if (table.players.length === 0) {
+        table.board = Array(6).fill().map(() => Array(7).fill(''));
+        table.currentPlayer = '';
+        table.rematchVotes = { red: null, yellow: null };
+      }
+    }
+  });
+}
+
 function checkWin(board, player) {
   // Horizontaal
   for (let r = 0; r < 6; r++) {
@@ -72,6 +86,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('joinTable', (tableIndex) => {
+    removePlayerFromAllTables(socket.id);
     if (tables[tableIndex].players.length < 2) {
       const color = tables[tableIndex].players.length === 0 ? 'red' : 'yellow';
       tables[tableIndex].players.push({ id: socket.id, name: socket.playerName, color });
@@ -121,28 +136,20 @@ io.on('connection', (socket) => {
       io.to(table.id).emit('rematchVoteUpdate', table.rematchVotes);
 
       if (table.rematchVotes.red === false || table.rematchVotes.yellow === false) {
-        // If any player votes no, return to lobby immediately
         returnToLobby(table);
       } else if (table.rematchVotes.red === true && table.rematchVotes.yellow === true) {
-        // If both players vote yes, start a new game
         startNewGame(table);
       }
     }
   });
 
+  socket.on('returnToLobby', () => {
+    removePlayerFromAllTables(socket.id);
+    io.emit('tablesUpdate', tables);
+  });
+
   socket.on('disconnect', () => {
-    tables.forEach(table => {
-      const playerIndex = table.players.findIndex(p => p.id === socket.id);
-      if (playerIndex !== -1) {
-        table.players.splice(playerIndex, 1);
-        table.board = Array(6).fill().map(() => Array(7).fill(''));
-        table.currentPlayer = '';
-        table.rematchVotes = { red: null, yellow: null };
-        if (table.players.length === 1) {
-          io.to(table.id).emit('joinedTable', table);
-        }
-      }
-    });
+    removePlayerFromAllTables(socket.id);
     io.emit('tablesUpdate', tables);
   });
 });
@@ -166,6 +173,7 @@ function returnToLobby(table) {
     const playerSocket = io.sockets.sockets.get(player.id);
     if (playerSocket) {
       playerSocket.leave(table.id);
+      removePlayerFromAllTables(player.id);
     }
   });
   table.players = [];
