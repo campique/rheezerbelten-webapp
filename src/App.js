@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { GlobalStyle } from './styles/GlobalStyle';
-import LanguageSwitch from './components/LanguageSwitch';
 import Stars from './components/Stars';
 import Logo from './components/Logo';
 import Mascot from './components/Mascot';
@@ -34,29 +33,18 @@ const ContentWrapper = styled.div`
   padding: 2rem 1rem;
 `;
 
-function Home({ currentLanguage, navigateToPage }) {
+function Home({ navigateToPage }) {
   return (
     <>
       <Logo />
-      <Mascot 
-        currentLanguage={currentLanguage}
-        currentPage="/"
-      />
-      <Menu 
-        currentLanguage={currentLanguage}
-        navigateToPage={navigateToPage}
-      />
+      <Mascot currentPage="/" />
+      <Menu navigateToPage={navigateToPage} />
     </>
   );
 }
 
 function AppContent() {
-  const [currentLanguage, setCurrentLanguage] = useState('nl');
   const navigate = useNavigate();
-
-  const toggleLanguage = () => {
-    setCurrentLanguage(currentLanguage === 'nl' ? 'de' : 'nl');
-  };
 
   const navigateToPage = (page) => {
     navigate(page);
@@ -67,14 +55,10 @@ function AppContent() {
       <GlobalStyle />
       <Stars />
       <AppWrapper>
-        <LanguageSwitch 
-          currentLanguage={currentLanguage} 
-          toggleLanguage={toggleLanguage}
-        />
         <ContentWrapper>
           <Routes>
-            <Route path="/" element={<Home currentLanguage={currentLanguage} navigateToPage={navigateToPage} />} />
-            <Route path="/games/connect-four" element={<ConnectFourOptions currentLanguage={currentLanguage} />} />
+            <Route path="/" element={<Home navigateToPage={navigateToPage} />} />
+            <Route path="/games/connect-four" element={<ConnectFourOptions />} />
             <Route path="/games/connect-four/local" element={<ConnectFourLocal />} />
             <Route path="/games/connect-four/vs-knof" element={<ConnectFourVsKnof />} />
             <Route path="/games/connect-four/online" element={<ConnectFourOnline />} />
