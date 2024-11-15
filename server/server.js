@@ -92,17 +92,19 @@ io.on('connection', (socket) => {
   socket.on('makeMove', (tableId, col) => {
     const table = tables.find(t => t.id === tableId);
     if (table) {
-      const row = table.board.findIndex(row => row[col] === '');
-      if (row !== -1) {
-        table.board[row][col] = table.currentPlayer;
-        if (checkWin(table.board, table.currentPlayer)) {
-          table.scores[table.currentPlayer]++;
-          io.to(table.id).emit('gameOver', table.currentPlayer);
-        } else if (table.board.every(row => row.every(cell => cell !== ''))) {
-          io.to(table.id).emit('gameOver', null);
-        } else {
-          table.currentPlayer = table.currentPlayer === 'red' ? 'yellow' : 'red';
-          io.to(table.id).emit('gameUpdate', table.board, table.currentPlayer);
+      for (let row = 5; row >= 0; row--) {
+        if (table.board[row][col] === '') {
+          table.board[row][col] = table.currentPlayer;
+          if (checkWin(table.board, table.currentPlayer)) {
+            table.scores[table.currentPlayer]++;
+            io.to(table.id).emit('gameOver', table.currentPlayer);
+          } else if (table.board.every(row => row.every(cell => cell !== ''))) {
+            io.to(table.id).emit('gameOver', null);
+          } else {
+            table.currentPlayer = table.currentPlayer === 'red' ? 'yellow' : 'red';
+            io.to(table.id).emit('gameUpdate', table.board, table.currentPlayer);
+          }
+          break;
         }
       }
     }
@@ -123,7 +125,8 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
-    tables.forEach(table => {
+    console.log('Client disconnected');
+    tables.forEach((table, index) => {
       const playerIndex = table.players.findIndex(p => p.id === socket.id);
       if (playerIndex !== -1) {
         table.players.splice(playerIndex, 1);
@@ -133,19 +136,19 @@ io.on('connection', (socket) => {
         if (table.players.length === 1) {
           io.to(table.id).emit('joinedTable', table);
         }
+        io.emit('tablesUpdate', tables);
       }
     });
-    io.emit('tablesUpdate', tables);
   });
 });
 
-// Serve static files from the build directory
-app.use(express.static(path.join(__dirname, '../build')));
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, 'client/build')));
 
 // The "catchall" handler: for any request that doesn't
 // match one above, send back React's index.html file.
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../build', 'index.html'));
+  res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
 });
 
 const PORT = process.env.PORT || 3001;
