@@ -1,84 +1,20 @@
-/* src/components/ConnectFour.css */
-.connect-four {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px;
-  max-width: 100%;
-  box-sizing: border-box;
-}
+/* Add these styles to your ConnectFour.css file */
 
-.board {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  grid-gap: 5px;
-  background-color: #2196F3;
-  padding: 10px;
-  border-radius: 10px;
-  margin-bottom: 20px;
-  max-width: 100%;
-  box-sizing: border-box;
-}
-
-.cell {
-  width: 50px;
-  height: 50px;
-  background: white;
-  border-radius: 50%;
-  cursor: pointer;
-}
-
-.cell.red {
-  background-color: #F44336;
-}
-
-.cell.yellow {
-  background-color: #FFEB3B;
-}
-
-.status, .scoreboard {
-  margin-bottom: 10px;
-  font-size: 1.2rem;
-  text-align: center;
-}
-
-.rematch-section {
-  margin-top: 20px;
-  display: flex;
-  justify-content: center;
-}
-
-.rematch-section button {
-  margin: 0 10px;
-  padding: 10px 20px;
-  font-size: 1rem;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-/* Nieuwe stijlen voor de online versie */
 .connect-four-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
+  max-width: 600px;
+  margin: 0 auto;
   padding: 20px;
-  box-sizing: border-box;
+  font-family: Arial, sans-serif;
 }
 
 .connect-four-title {
-  font-size: 24px;
-  margin-bottom: 20px;
   text-align: center;
+  color: #2196F3;
+  margin-bottom: 20px;
 }
 
 .connect-four-input {
   width: 100%;
-  max-width: 300px;
   padding: 10px;
   margin-bottom: 10px;
   border: 2px solid #2196F3;
@@ -101,34 +37,47 @@
   background-color: #1976D2;
 }
 
+.connect-four-button:disabled {
+  background-color: #BDBDBD;
+  cursor: not-allowed;
+}
+
 .connect-four-lobby {
-  width: 100%;
-  max-width: 400px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
 }
 
 .connect-four-table {
-  background-color: white;
-  border: 2px solid #2196F3;
-  border-radius: 5px;
-  padding: 10px;
-  margin-bottom: 10px;
+  background-color: #E3F2FD;
+  border-radius: 10px;
+  padding: 15px;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
+  transition: box-shadow 0.3s;
 }
 
-@media (max-width: 600px) {
-  .cell {
-    width: 40px;
-    height: 40px;
-  }
+.connect-four-table:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
 
-  .connect-four-title {
-    font-size: 20px;
-  }
+.table-info {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 10px;
+}
 
-  .connect-four-input,
-  .connect-four-button {
-    font-size: 14px;
-  }
+.table-name {
+  font-weight: bold;
+  color: #1565C0;
+}
+
+.player-count {
+  color: #757575;
+}
+
+.join-button {
+  width: 100%;
 }
