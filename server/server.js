@@ -11,8 +11,7 @@ let tables = Array(10).fill().map(() => ({
   id: Date.now() + Math.random(), 
   players: [], 
   board: Array(6).fill().map(() => Array(7).fill('')), 
-  currentPlayer: '', 
-  scores: { red: 0, yellow: 0 }
+  currentPlayer: ''
 }));
 
 function checkWin(board, player) {
@@ -59,10 +58,6 @@ function checkWin(board, player) {
   return null;
 }
 
-function checkDraw(board) {
-  return board.every(row => row.every(cell => cell !== ''));
-}
-
 io.on('connection', (socket) => {
   console.log('New client connected');
 
@@ -101,10 +96,7 @@ io.on('connection', (socket) => {
           table.board[row][col] = table.currentPlayer;
           const winningLine = checkWin(table.board, table.currentPlayer);
           if (winningLine) {
-            table.scores[table.currentPlayer]++;
             io.to(table.id).emit('gameOver', table.currentPlayer, winningLine);
-          } else if (checkDraw(table.board)) {
-            io.to(table.id).emit('gameOver', 'draw', null);
           } else {
             table.currentPlayer = table.currentPlayer === 'red' ? 'yellow' : 'red';
             io.to(table.id).emit('gameUpdate', table.board, table.currentPlayer);
@@ -115,26 +107,11 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('playAgain', (tableId) => {
-    const table = tables.find(t => t.id === tableId);
-    if (table) {
-      table.board = Array(6).fill().map(() => Array(7).fill(''));
-      const startingPlayer = Math.random() < 0.5 ? 'red' : 'yellow';
-      table.currentPlayer = startingPlayer;
-      const players = {
-        red: table.players.find(p => p.color === 'red').name,
-        yellow: table.players.find(p => p.color === 'yellow').name
-      };
-      io.to(table.id).emit('gameStart', { startingPlayer, players });
-    }
-  });
-
   socket.on('disconnect', () => {
     tables.forEach(table => {
       const playerIndex = table.players.findIndex(p => p.id === socket.id);
       if (playerIndex !== -1) {
         table.players.splice(playerIndex, 1);
-        table.scores = { red: 0, yellow: 0 };
         table.board = Array(6).fill().map(() => Array(7).fill(''));
         table.currentPlayer = '';
         if (table.players.length === 1) {
