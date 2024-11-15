@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 
-const socket = io('http://localhost:3001'); // Vervang dit met je server URL
+const socket = io(process.env.REACT_APP_SERVER_URL || '');
 
 const ConnectFourOnline = () => {
   const [playerName, setPlayerName] = useState('');
