@@ -43,13 +43,19 @@
 .connect-four-lobby-scroll {
   max-height: 70vh;
   overflow-y: auto;
-  padding-right: 20px;
+  scrollbar-width: none; /* Voor Firefox */
+  -ms-overflow-style: none; /* Voor Internet Explorer en Edge */
+}
+
+.connect-four-lobby-scroll::-webkit-scrollbar {
+  display: none; /* Voor Chrome, Safari, en Opera */
 }
 
 .connect-four-lobby {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  padding-right: 20px; /* Voeg wat ruimte toe aan de rechterkant */
 }
 
 .connect-four-table {
@@ -89,24 +95,6 @@
 .player-name {
   margin: 5px 0;
   color: #333;
-}
-
-.connect-four-lobby-scroll::-webkit-scrollbar {
-  width: 10px;
-}
-
-.connect-four-lobby-scroll::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 5px;
-}
-
-.connect-four-lobby-scroll::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 5px;
-}
-
-.connect-four-lobby-scroll::-webkit-scrollbar-thumb:hover {
-  background: #555;
 }
 
 /* Stijlen voor het spelbord */
