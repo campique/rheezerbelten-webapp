@@ -213,6 +213,11 @@ function ConnectFourOnline() {
       }
     });
 
+    socket.on('opponentLeft', () => {
+      setStatus('De andere speler heeft het spel verlaten');
+      setGameState('opponentLeft');
+    });
+
     return () => {
       socket.off('tablesUpdate');
       socket.off('joinedTable');
@@ -223,6 +228,7 @@ function ConnectFourOnline() {
       socket.off('rematchAccepted');
       socket.off('returnToLobby');
       socket.off('rematchVoteUpdate');
+      socket.off('opponentLeft');
     };
   }, [players, playerColor]);
 
@@ -267,6 +273,10 @@ function ConnectFourOnline() {
 
   const returnToLobby = () => {
     socket.emit('returnToLobby');
+    resetGameState();
+  };
+
+  const resetGameState = () => {
     setCurrentTable(null);
     setBoard(Array(6).fill().map(() => Array(7).fill('')));
     setStatus('Wachten op tegenstander...');
@@ -346,7 +356,9 @@ function ConnectFourOnline() {
         )}
       </Board>
       <Status>{status}</Status>
-      {showRematchQuestion ? (
+      {gameState === 'opponentLeft' ? (
+        <Button onClick={returnToLobby}>Terug naar lobby</Button>
+      ) : showRematchQuestion ? (
         <div>
           <p>Wil je nog een keer spelen?</p>
           <Button onClick={() => voteRematch(true)} disabled={rematchVotes[playerColor] !== null}>Ja</Button>
@@ -363,7 +375,7 @@ function ConnectFourOnline() {
     <GlobalStyle>
       {gameState === 'enterName' && renderNameEntry()}
       {gameState === 'lobby' && renderLobby()}
-      {(gameState === 'game' || gameState === 'gameOver') && renderGame()}
+      {(gameState === 'game' || gameState === 'gameOver' || gameState === 'opponentLeft') && renderGame()}
     </GlobalStyle>
   );
 }
