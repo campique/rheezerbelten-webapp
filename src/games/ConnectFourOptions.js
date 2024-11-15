@@ -86,7 +86,7 @@ const ConnectFourOptions = () => {
       <OptionButton onClick={() => handleOption('vsOnline')}>
         Speel online
       </OptionButton>
-      <BackButton onClick={handleBack}>Terug naar spelletjes</BackButton>
+      <BackButton onClick={handleBack}>Terug</BackButton>
     </OptionsWrapper>
   );
 };
