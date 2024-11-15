@@ -320,38 +320,28 @@ function ConnectFourOnline() {
           value={playerName}
           onChange={(e) => setPlayerName(e.target.value)}
           placeholder="Voer je naam in"
+          className="connect-four-input"
         />
-        <Button type="submit">Start</Button>
+        <Button type="submit" className="connect-four-button">Start</Button>
       </NameEntryForm>
     </div>
   );
 
   const renderLobby = () => (
-    <div className="connect-four-container">
-      <h2 className="connect-four-title">Beschikbare tafels</h2>
-      <div className="connect-four-lobby-scroll">
-        <div className="connect-four-lobby">
-          {tables.map((table, index) => (
-            <div key={index} className="connect-four-table">
-              <div className="table-info">
-                <span className="table-name">Tafel {index + 1}</span>
-                <span className="player-count">{table.players.length}/2 spelers</span>
-              </div>
-              {table.players.map((player, i) => (
-                <p key={i} className="player-name">{player.name}</p>
-              ))}
-              {table.players.length < 2 && (
-                <button
-                  className="connect-four-button join-button"
-                  onClick={() => joinTable(index)}
-                >
-                  Deelnemen
-                </button>
-              )}
+    <div className="lobby-container">
+      <h2 className="connect-four-title">Kies een tafel</h2>
+      <div className="tables-container">
+        {tables.map((table, index) => (
+          <div key={index} className="connect-four-table" onClick={() => joinTable(index)}>
+            <span className="table-name">Tafel {index + 1}</span>
+            <div className="player-slots">
+              <div className={`player-slot ${table.players[0] ? 'occupied' : ''}`}></div>
+              <div className={`player-slot ${table.players[1] ? 'occupied' : ''}`}></div>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
+      <Button onClick={() => setGameState('enterName')} className="connect-four-button">Terug</Button>
     </div>
   );
 
