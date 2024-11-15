@@ -12,7 +12,7 @@ let tables = Array(10).fill().map(() => ({
   players: [], 
   board: Array(6).fill().map(() => Array(7).fill('')), 
   currentPlayer: '',
-  rematchVotes: { red: false, yellow: false }
+  rematchVotes: { red: null, yellow: null }
 }));
 
 function checkWin(board, player) {
@@ -120,12 +120,14 @@ io.on('connection', (socket) => {
       table.rematchVotes[color] = vote;
       io.to(table.id).emit('rematchVoteUpdate', table.rematchVotes);
 
-      if (table.rematchVotes.red && table.rematchVotes.yellow) {
-        // Both players voted for rematch
-        startNewGame(table);
-      } else if (table.rematchVotes.red === false || table.rematchVotes.yellow === false) {
-        // One player voted against rematch
-        returnToLobby(table);
+      if (table.rematchVotes.red !== null && table.rematchVotes.yellow !== null) {
+        if (table.rematchVotes.red && table.rematchVotes.yellow) {
+          // Both players voted for rematch
+          startNewGame(table);
+        } else {
+          // At least one player voted against rematch
+          returnToLobby(table);
+        }
       }
     }
   });
@@ -137,7 +139,7 @@ io.on('connection', (socket) => {
         table.players.splice(playerIndex, 1);
         table.board = Array(6).fill().map(() => Array(7).fill(''));
         table.currentPlayer = '';
-        table.rematchVotes = { red: false, yellow: false };
+        table.rematchVotes = { red: null, yellow: null };
         if (table.players.length === 1) {
           io.to(table.id).emit('joinedTable', table);
         }
@@ -155,7 +157,7 @@ function startNewGame(table) {
     red: table.players.find(p => p.color === 'red').name,
     yellow: table.players.find(p => p.color === 'yellow').name
   };
-  table.rematchVotes = { red: false, yellow: false };
+  table.rematchVotes = { red: null, yellow: null };
   io.to(table.id).emit('rematchAccepted');
   io.to(table.id).emit('gameStart', { startingPlayer, players });
 }
@@ -171,7 +173,7 @@ function returnToLobby(table) {
   table.players = [];
   table.board = Array(6).fill().map(() => Array(7).fill(''));
   table.currentPlayer = '';
-  table.rematchVotes = { red: false, yellow: false };
+  table.rematchVotes = { red: null, yellow: null };
   io.emit('tablesUpdate', tables);
 }
 
