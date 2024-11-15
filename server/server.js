@@ -21,7 +21,7 @@ function checkWin(board, player) {
     for (let c = 0; c < 4; c++) {
       if (board[r][c] === player && board[r][c+1] === player && 
           board[r][c+2] === player && board[r][c+3] === player) {
-        return [[r,c], [r,c+1], [r,c+2], [r,c+3]];
+        return true;
       }
     }
   }
@@ -31,7 +31,7 @@ function checkWin(board, player) {
     for (let c = 0; c < 7; c++) {
       if (board[r][c] === player && board[r+1][c] === player && 
           board[r+2][c] === player && board[r+3][c] === player) {
-        return [[r,c], [r+1,c], [r+2,c], [r+3,c]];
+        return true;
       }
     }
   }
@@ -41,7 +41,7 @@ function checkWin(board, player) {
     for (let c = 0; c < 4; c++) {
       if (board[r][c] === player && board[r-1][c+1] === player && 
           board[r-2][c+2] === player && board[r-3][c+3] === player) {
-        return [[r,c], [r-1,c+1], [r-2,c+2], [r-3,c+3]];
+        return true;
       }
     }
   }
@@ -51,12 +51,12 @@ function checkWin(board, player) {
     for (let c = 0; c < 4; c++) {
       if (board[r][c] === player && board[r+1][c+1] === player && 
           board[r+2][c+2] === player && board[r+3][c+3] === player) {
-        return [[r,c], [r+1,c+1], [r+2,c+2], [r+3,c+3]];
+        return true;
       }
     }
   }
 
-  return null;
+  return false;
 }
 
 io.on('connection', (socket) => {
@@ -95,12 +95,11 @@ io.on('connection', (socket) => {
       for (let row = 5; row >= 0; row--) {
         if (table.board[row][col] === '') {
           table.board[row][col] = table.currentPlayer;
-          const winningLine = checkWin(table.board, table.currentPlayer);
-          if (winningLine) {
+          if (checkWin(table.board, table.currentPlayer)) {
             table.scores[table.currentPlayer]++;
-            io.to(table.id).emit('gameOver', table.currentPlayer, winningLine);
+            io.to(table.id).emit('gameOver', table.currentPlayer);
           } else if (table.board.every(row => row.every(cell => cell !== ''))) {
-            io.to(table.id).emit('gameOver', null, null);
+            io.to(table.id).emit('gameOver', null);
           } else {
             table.currentPlayer = table.currentPlayer === 'red' ? 'yellow' : 'red';
             io.to(table.id).emit('gameUpdate', table.board, table.currentPlayer);
