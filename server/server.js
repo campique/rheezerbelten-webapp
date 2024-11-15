@@ -59,6 +59,10 @@ function checkWin(board, player) {
   return null;
 }
 
+function checkDraw(board) {
+  return board.every(row => row.every(cell => cell !== ''));
+}
+
 io.on('connection', (socket) => {
   console.log('New client connected');
 
@@ -99,7 +103,7 @@ io.on('connection', (socket) => {
           if (winningLine) {
             table.scores[table.currentPlayer]++;
             io.to(table.id).emit('gameOver', table.currentPlayer, winningLine);
-          } else if (table.board.every(row => row.every(cell => cell !== ''))) {
+          } else if (checkDraw(table.board)) {
             io.to(table.id).emit('gameOver', 'draw', null);
           } else {
             table.currentPlayer = table.currentPlayer === 'red' ? 'yellow' : 'red';
