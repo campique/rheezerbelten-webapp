@@ -180,37 +180,48 @@ function ConnectFourOnline() {
   };
 
   const renderNameEntry = () => (
-    <GameWrapper>
-      <h1>Speel 4 op een rij online</h1>
+    <div className="connect-four-container">
+      <h1 className="connect-four-title">Speel 4 op een rij online</h1>
       <form onSubmit={handleNameSubmit}>
         <input
+          className="connect-four-input"
           type="text"
           value={playerName}
           onChange={(e) => setPlayerName(e.target.value)}
           placeholder="Voer je naam in"
         />
-        <Button type="submit">Start</Button>
+        <button className="connect-four-button" type="submit">Start</button>
       </form>
-    </GameWrapper>
+    </div>
   );
 
   const renderLobby = () => (
-    <GameWrapper>
-      <h2>Beschikbare tafels</h2>
-      <div>
-        {tables.map((table, index) => (
-          <div key={index}>
-            <span>Tafel {index + 1}: {table.players.length}/2 spelers</span>
-            {table.players.map((player, i) => (
-              <p key={i}>{player.name}</p>
-            ))}
-            {table.players.length < 2 && (
-              <Button onClick={() => joinTable(index)}>Deelnemen</Button>
-            )}
-          </div>
-        ))}
+    <div className="connect-four-container">
+      <h2 className="connect-four-title">Beschikbare tafels</h2>
+      <div className="connect-four-lobby-scroll">
+        <div className="connect-four-lobby">
+          {tables.map((table, index) => (
+            <div key={index} className="connect-four-table">
+              <div className="table-info">
+                <span className="table-name">Tafel {index + 1}</span>
+                <span className="player-count">{table.players.length}/2 spelers</span>
+              </div>
+              {table.players.map((player, i) => (
+                <p key={i} className="player-name">{player.name}</p>
+              ))}
+              {table.players.length < 2 && (
+                <button
+                  className="connect-four-button join-button"
+                  onClick={() => joinTable(index)}
+                >
+                  Deelnemen
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
-    </GameWrapper>
+    </div>
   );
 
   const renderGame = () => (
