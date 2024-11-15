@@ -71,7 +71,7 @@ const ConnectFourOptions = () => {
   };
 
   const handleBack = () => {
-    navigate(-1);
+    navigate('/');
   };
 
   return (
