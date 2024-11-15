@@ -153,6 +153,12 @@ function ConnectFourOnline() {
   useEffect(() => {
     socket.on('tablesUpdate', (updatedTables) => {
       setTables(updatedTables);
+      const currentPlayerTable = updatedTables.find(table => 
+        table.players.some(player => player.id === socket.id)
+      );
+      if (!currentPlayerTable && gameState !== 'enterName') {
+        resetGameState();
+      }
     });
 
     socket.on('joinedTable', (table) => {
@@ -180,7 +186,6 @@ function ConnectFourOnline() {
     });
 
     socket.on('gameOver', (winner, winningLine) => {
-      console.log('Game over:', winner, winningLine);
       if (winner === 'draw') {
         setStatus('Gelijkspel!');
       } else {
@@ -218,6 +223,13 @@ function ConnectFourOnline() {
       setGameState('opponentLeft');
     });
 
+    socket.on('playerLeft', (playerId) => {
+      if (playerId !== socket.id && gameState === 'game') {
+        setStatus('De andere speler heeft het spel verlaten');
+        setGameState('opponentLeft');
+      }
+    });
+
     return () => {
       socket.off('tablesUpdate');
       socket.off('joinedTable');
@@ -229,8 +241,16 @@ function ConnectFourOnline() {
       socket.off('returnToLobby');
       socket.off('rematchVoteUpdate');
       socket.off('opponentLeft');
+      socket.off('playerLeft');
     };
-  }, [players, playerColor]);
+  }, [gameState, players, playerColor]);
+
+  useEffect(() => {
+    const playerTable = tables.find(table => 
+      table.players.some(player => player.id === socket.id)
+    );
+    setCurrentTable(playerTable || null);
+  }, [tables]);
 
   const handleNameSubmit = (e) => {
     e.preventDefault();
@@ -241,12 +261,14 @@ function ConnectFourOnline() {
   };
 
   const joinTable = (tableIndex) => {
+    if (currentTable) {
+      socket.emit('leaveTable', currentTable.id);
+    }
     socket.emit('joinTable', tableIndex);
   };
 
   const makeMove = (col) => {
     if (gameState === 'game' && currentPlayer === playerColor) {
-      console.log('Move made:', currentTable.id, col);
       socket.emit('makeMove', currentTable.id, col);
     }
   };
