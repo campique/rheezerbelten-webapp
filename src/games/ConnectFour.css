@@ -52,27 +52,23 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-height: 100vh;
   padding: 20px;
-  overflow-y: auto;
+  min-height: 100vh;
 }
 
 .tables-container {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  align-items: center;
-  width: 90vw;
-  max-width: 1200px;
+  width: 100%;
+  max-width: 600px;
   margin: 0 auto;
-  padding: 20px;
-  min-height: 70vh;
-  position: relative;
+  padding: 20px 0;
 }
 
 .connect-four-table {
-  width: 120px;
-  height: 120px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
   background-color: #81C784;
   display: flex;
@@ -82,34 +78,32 @@ body {
   cursor: pointer;
   transition: all 0.3s;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  position: absolute;
+  margin: 10px;
 }
 
 .connect-four-table:hover {
-  transform: scale(1.05) rotate(0deg) !important;
+  transform: scale(1.05);
   box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-  z-index: 10;
 }
 
 .table-name {
   font-weight: bold;
   color: #1565C0;
-  font-size: 1em;
+  font-size: 0.9em;
   text-align: center;
 }
 
 .player-slots {
   display: flex;
-  margin-top: 10px;
+  margin-top: 5px;
 }
 
 .player-slot {
-  width: 30px;
-  height: 30px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background-color: #FFECB3;
-  margin: 0 5px;
-  transition: background-color 0.3s ease;
+  margin: 0 3px;
 }
 
 .player-slot.occupied {
@@ -185,13 +179,13 @@ body {
 
 @media (max-width: 768px) {
   .connect-four-table {
-    width: 100px;
-    height: 100px;
+    width: 90px;
+    height: 90px;
   }
 
   .player-slot {
-    width: 25px;
-    height: 25px;
+    width: 18px;
+    height: 18px;
   }
 }
 
@@ -202,8 +196,8 @@ body {
   }
 
   .player-slot {
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
   }
 
   .table-name {
