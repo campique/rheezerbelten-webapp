@@ -1,5 +1,3 @@
-/* Add these styles to your ConnectFour.css file */
-
 .connect-four-container {
   max-width: 600px;
   margin: 0 auto;
@@ -42,9 +40,15 @@
   cursor: not-allowed;
 }
 
+.connect-four-lobby-scroll {
+  max-height: 70vh;
+  overflow-y: auto;
+  padding-right: 20px;
+}
+
 .connect-four-lobby {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: 20px;
 }
 
@@ -80,4 +84,70 @@
 
 .join-button {
   width: 100%;
+}
+
+.player-name {
+  margin: 5px 0;
+  color: #333;
+}
+
+.connect-four-lobby-scroll::-webkit-scrollbar {
+  width: 10px;
+}
+
+.connect-four-lobby-scroll::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 5px;
+}
+
+.connect-four-lobby-scroll::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 5px;
+}
+
+.connect-four-lobby-scroll::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Stijlen voor het spelbord */
+.connect-four {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.status {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.scoreboard {
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  background-color: #1976D2;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.cell {
+  width: 50px;
+  height: 50px;
+  background-color: white;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.cell.red {
+  background-color: #FF5252;
+}
+
+.cell.yellow {
+  background-color: #FFD740;
 }
