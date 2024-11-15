@@ -31,12 +31,6 @@ const Board = styled.div`
   max-width: 600px;
 `;
 
-const blink = keyframes`
-  0% { opacity: 1; }
-  50% { opacity: 0.5; }
-  100% { opacity: 1; }
-`;
-
 const pulse = keyframes`
   0% { transform: scale(1); }
   50% { transform: scale(1.1); }
@@ -65,10 +59,12 @@ const Cell = styled.div`
     height: 90%;
     border-radius: 50%;
     background-color: ${props => props.player === 'red' ? '#F44336' : props.player === 'yellow' ? '#FFEB3B' : 'transparent'};
-    animation: ${props => props.isWinning ? blink : 'none'} 1s linear infinite;
+    ${props => props.isWinning && `
+      box-shadow: inset 0 0 0 4px #4CAF50;
+    `}
     ${props => props.isLastWinning && `
       animation: ${pulse} 0.5s ease-in-out infinite;
-      box-shadow: 0 0 10px 5px gold;
+      box-shadow: inset 0 0 0 4px gold, 0 0 15px 7px gold;
     `}
   }
 `;
