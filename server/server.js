@@ -7,7 +7,13 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
-let tables = Array(10).fill().map(() => ({ id: Date.now() + Math.random(), players: [], board: Array(6).fill().map(() => Array(7).fill(null)), currentPlayer: 'red' }));
+let tables = Array(10).fill().map(() => ({ 
+  id: Date.now() + Math.random(), 
+  players: [], 
+  board: Array(6).fill().map(() => Array(7).fill('')), 
+  currentPlayer: '', 
+  scores: { red: 0, yellow: 0 }
+}));
 
 function checkWin(board, player) {
   // Horizontaal
@@ -63,8 +69,21 @@ io.on('connection', (socket) => {
 
   socket.on('joinTable', (tableIndex) => {
     if (tables[tableIndex].players.length < 2) {
-      tables[tableIndex].players.push({ id: socket.id, name: socket.playerName });
+      const color = tables[tableIndex].players.length === 0 ? 'red' : 'yellow';
+      tables[tableIndex].players.push({ id: socket.id, name: socket.playerName, color });
       socket.join(tables[tableIndex].id);
+      socket.emit('playerColor', color);
+      
+      if (tables[tableIndex].players.length === 2) {
+        const startingPlayer = Math.random() < 0.5 ? 'red' : 'yellow';
+        tables[tableIndex].currentPlayer = startingPlayer;
+        const players = {
+          red: tables[tableIndex].players.find(p => p.color === 'red').name,
+          yellow: tables[tableIndex].players.find(p => p.color === 'yellow').name
+        };
+        io.to(tables[tableIndex].id).emit('gameStart', { startingPlayer, players });
+      }
+      
       io.to(tables[tableIndex].id).emit('joinedTable', tables[tableIndex]);
       io.emit('tablesUpdate', tables);
     }
@@ -73,15 +92,14 @@ io.on('connection', (socket) => {
   socket.on('makeMove', (tableId, col) => {
     const table = tables.find(t => t.id === tableId);
     if (table) {
-      const row = table.board.findIndex(row => row[col] === null);
+      const row = table.board.findIndex(row => row[col] === '');
       if (row !== -1) {
         table.board[row][col] = table.currentPlayer;
         if (checkWin(table.board, table.currentPlayer)) {
-          table.scores = table.scores || { red: 0, yellow: 0 };
           table.scores[table.currentPlayer]++;
-          io.to(table.id).emit('gameOver', table.currentPlayer, table.scores);
-        } else if (table.board.every(row => row.every(cell => cell !== null))) {
-          io.to(table.id).emit('gameOver', null, table.scores);
+          io.to(table.id).emit('gameOver', table.currentPlayer);
+        } else if (table.board.every(row => row.every(cell => cell !== ''))) {
+          io.to(table.id).emit('gameOver', null);
         } else {
           table.currentPlayer = table.currentPlayer === 'red' ? 'yellow' : 'red';
           io.to(table.id).emit('gameUpdate', table.board, table.currentPlayer);
@@ -90,30 +108,31 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('playAgain', (tableId, choice) => {
+  socket.on('playAgain', (tableId) => {
     const table = tables.find(t => t.id === tableId);
     if (table) {
-      if (choice) {
-        table.board = Array(6).fill().map(() => Array(7).fill(null));
-        table.currentPlayer = 'red';
-        io.to(table.id).emit('gameUpdate', table.board, table.currentPlayer);
-      } else {
-        table.players = table.players.filter(p => p.id !== socket.id);
-        socket.leave(table.id);
-        if (table.players.length === 0) {
-          table.scores = { red: 0, yellow: 0 };
-        }
-        io.to(table.id).emit('joinedTable', table);
-        io.emit('tablesUpdate', tables);
-      }
+      table.board = Array(6).fill().map(() => Array(7).fill(''));
+      const startingPlayer = Math.random() < 0.5 ? 'red' : 'yellow';
+      table.currentPlayer = startingPlayer;
+      const players = {
+        red: table.players.find(p => p.color === 'red').name,
+        yellow: table.players.find(p => p.color === 'yellow').name
+      };
+      io.to(table.id).emit('gameStart', { startingPlayer, players });
     }
   });
 
   socket.on('disconnect', () => {
     tables.forEach(table => {
-      table.players = table.players.filter(p => p.id !== socket.id);
-      if (table.players.length === 1) {
-        io.to(table.id).emit('joinedTable', table);
+      const playerIndex = table.players.findIndex(p => p.id === socket.id);
+      if (playerIndex !== -1) {
+        table.players.splice(playerIndex, 1);
+        table.scores = { red: 0, yellow: 0 };
+        table.board = Array(6).fill().map(() => Array(7).fill(''));
+        table.currentPlayer = '';
+        if (table.players.length === 1) {
+          io.to(table.id).emit('joinedTable', table);
+        }
       }
     });
     io.emit('tablesUpdate', tables);
