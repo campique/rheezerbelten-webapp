@@ -1,12 +1,91 @@
 import React, { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import io from 'socket.io-client';
 import './ConnectFour.css';
 
 const socket = io('http://localhost:3001');
 
+// Eenvoudige vertaalfunctie
+const translate = (key, language) => {
+  const translations = {
+    'Speel 4 op een rij online': {
+      nl: 'Speel 4 op een rij online',
+      en: 'Play Connect Four online',
+      de: 'Spiele 4 Gewinnt online'
+    },
+    'Voer je naam in': {
+      nl: 'Voer je naam in',
+      en: 'Enter your name',
+      de: 'Gib deinen Namen ein'
+    },
+    'Start': {
+      nl: 'Start',
+      en: 'Start',
+      de: 'Start'
+    },
+    'Beschikbare tafels': {
+      nl: 'Beschikbare tafels',
+      en: 'Available tables',
+      de: 'Verfügbare Tische'
+    },
+    'Tafel': {
+      nl: 'Tafel',
+      en: 'Table',
+      de: 'Tisch'
+    },
+    'spelers': {
+      nl: 'spelers',
+      en: 'players',
+      de: 'Spieler'
+    },
+    'Deelnemen': {
+      nl: 'Deelnemen',
+      en: 'Join',
+      de: 'Beitreten'
+    },
+    'Gelijkspel!': {
+      nl: 'Gelijkspel!',
+      en: 'Draw!',
+      de: 'Unentschieden!'
+    },
+    'Winnaar': {
+      nl: 'Winnaar',
+      en: 'Winner',
+      de: 'Gewinner'
+    },
+    'Huidige speler': {
+      nl: 'Huidige speler',
+      en: 'Current player',
+      de: 'Aktueller Spieler'
+    },
+    'Rood': {
+      nl: 'Rood',
+      en: 'Red',
+      de: 'Rot'
+    },
+    'Geel': {
+      nl: 'Geel',
+      en: 'Yellow',
+      de: 'Gelb'
+    },
+    'Opnieuw spelen': {
+      nl: 'Opnieuw spelen',
+      en: 'Play again',
+      de: 'Nochmal spielen'
+    },
+    'Terug naar lobby': {
+      nl: 'Terug naar lobby',
+      en: 'Back to lobby',
+      de: 'Zurück zur Lobby'
+    }
+  };
+
+  return translations[key][language] || key;
+};
+
 function ConnectFourOnline() {
-  const { t } = useTranslation();
+  const [language, setLanguage] = useState('nl'); // Standaardtaal
+  const t = (key) => translate(key, language);
+
   const [playerName, setPlayerName] = useState('');
   const [showLobby, setShowLobby] = useState(false);
   const [tables, setTables] = useState([]);
