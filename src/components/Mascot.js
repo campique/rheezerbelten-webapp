@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { translations } from '../utils/translations';
 
 const MascotWrapper = styled.div`
   position: relative;
@@ -57,7 +56,14 @@ const SpeechBubble = styled.div`
   }
 `;
 
-const Mascot = ({ currentLanguage, currentPage }) => {
+const responses = {
+  greeting: "Hoi! Ik ben Knof. Wat zullen we gaan doen?",
+  homeResponse: "Welkom op de homepage!",
+  gamesResponse: "Laten we een spelletje spelen!",
+  // Voeg hier meer Nederlandse responses toe voor andere pagina's
+};
+
+const Mascot = ({ currentPage }) => {
   const [showBubble, setShowBubble] = useState(false);
   const [jumping, setJumping] = useState(false);
   const [bubbleText, setBubbleText] = useState('');
@@ -67,10 +73,10 @@ const Mascot = ({ currentLanguage, currentPage }) => {
     setJumping(true);
     setTimeout(() => {
       setJumping(false);
-      setBubbleText(translations[currentLanguage][`${currentPage}Response`] || translations[currentLanguage].greeting);
+      setBubbleText(responses[`${currentPage}Response`] || responses.greeting);
       setShowBubble(true);
     }, 500);
-  }, [currentLanguage, currentPage]);
+  }, [currentPage]);
 
   return (
     <MascotWrapper>
