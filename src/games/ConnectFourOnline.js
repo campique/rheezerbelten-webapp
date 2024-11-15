@@ -43,6 +43,12 @@ const Button = styled.button`
   cursor: pointer;
 `;
 
+const Input = styled.input`
+  margin: 10px;
+  padding: 5px;
+  font-size: 18px;
+`;
+
 const ConnectFourOnline = () => {
   const navigate = useNavigate();
   const [socket, setSocket] = useState(null);
@@ -52,6 +58,8 @@ const ConnectFourOnline = () => {
   const [status, setStatus] = useState('Wachten op tegenstander...');
   const [showConfetti, setShowConfetti] = useState(false);
   const [playerColor, setPlayerColor] = useState(null);
+  const [playerName, setPlayerName] = useState('');
+  const [inLobby, setInLobby] = useState(true);
 
   useEffect(() => {
     console.log('useEffect hook running');
@@ -68,11 +76,12 @@ const ConnectFourOnline = () => {
 
     setSocket(newSocket);
 
-    newSocket.on('gameStart', ({ color }) => {
-      console.log('Game started, player color:', color);
+    newSocket.on('gameStart', ({ color, opponentName }) => {
+      console.log('Game started, player color:', color, 'Opponent:', opponentName);
       setPlayerColor(color);
       setGameActive(true);
-      setStatus(`${color === 'red' ? 'Rode' : 'Gele'} speler is aan de beurt`);
+      setInLobby(false);
+      setStatus(`Spel gestart! Je speelt tegen ${opponentName}. ${color === 'red' ? 'Rode' : 'Gele'} speler is aan de beurt`);
     });
 
     newSocket.on('gameUpdate', ({ gameState, currentPlayer }) => {
@@ -109,6 +118,30 @@ const ConnectFourOnline = () => {
     console.log('Resetting game');
     socket.emit('resetGame');
   };
+
+  const joinGame = () => {
+    if (playerName.trim() !== '') {
+      console.log('Joining game with name:', playerName);
+      socket.emit('joinGame', { name: playerName });
+      setStatus('Wachten op tegenstander...');
+    }
+  };
+
+  if (inLobby) {
+    return (
+      <GameWrapper>
+        <h2>4 op een Rij - Lobby</h2>
+        <Input 
+          type="text" 
+          placeholder="Voer je naam in" 
+          value={playerName} 
+          onChange={(e) => setPlayerName(e.target.value)}
+        />
+        <Button onClick={joinGame}>Spel Starten</Button>
+        <Status>{status}</Status>
+      </GameWrapper>
+    );
+  }
 
   return (
     <GameWrapper>
