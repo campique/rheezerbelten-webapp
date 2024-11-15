@@ -247,11 +247,9 @@ function ConnectFourOnline() {
 
   const voteRematch = (vote) => {
     if (!vote) {
-      // Als de stem "Nee" is, keer direct terug naar de lobby
       socket.emit('rematchVote', currentTable.id, playerColor, false);
       returnToLobby();
     } else {
-      // Als de stem "Ja" is, stuur de stem naar de server en wacht
       socket.emit('rematchVote', currentTable.id, playerColor, true);
     }
   };
@@ -268,6 +266,7 @@ function ConnectFourOnline() {
   };
 
   const returnToLobby = () => {
+    socket.emit('returnToLobby');
     setCurrentTable(null);
     setBoard(Array(6).fill().map(() => Array(7).fill('')));
     setStatus('Wachten op tegenstander...');
