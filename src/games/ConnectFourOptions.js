@@ -2,15 +2,22 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-const OptionsWrapper = styled.div`
+const OptionsContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
-  padding: 2rem;
+  justify-content: center;
+  height: 100vh;
+  background-color: #f0f0f0;
 `;
 
-const OptionButton = styled.button`
+const Title = styled.h1`
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  color: #333;
+`;
+
+const Button = styled.button`
   background-color: #4CAF50;
   border: none;
   color: white;
@@ -19,7 +26,7 @@ const OptionButton = styled.button`
   text-decoration: none;
   display: inline-block;
   font-size: 16px;
-  margin: 4px 2px;
+  margin: 10px;
   cursor: pointer;
   border-radius: 12px;
   transition: all 0.3s ease;
@@ -27,27 +34,6 @@ const OptionButton = styled.button`
   &:hover {
     background-color: #45a049;
     transform: scale(1.05);
-  }
-`;
-
-const Title = styled.h2`
-  color: #333;
-  margin-bottom: 1rem;
-`;
-
-const BackButton = styled.button`
-  margin-top: 2rem;
-  padding: 0.5rem 1rem;
-  font-size: 1rem;
-  background-color: #2196F3;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-
-  &:hover {
-    background-color: #1E88E5;
   }
 `;
 
@@ -71,23 +57,23 @@ const ConnectFourOptions = () => {
   };
 
   const handleBack = () => {
-    navigate(-1); // This will navigate back to the previous page
+    navigate(-1);
   };
 
   return (
-    <OptionsWrapper>
+    <OptionsContainer>
       <Title>Kies een spelmodus</Title>
-      <OptionButton onClick={() => handleOption('vsKnof')}>
+      <Button onClick={() => handleOption('vsKnof')}>
         Speel tegen Knof
-      </OptionButton>
-      <OptionButton onClick={() => handleOption('vsLocal')}>
+      </Button>
+      <Button onClick={() => handleOption('vsLocal')}>
         Speel lokaal tegen een vriend
-      </OptionButton>
-      <OptionButton onClick={() => handleOption('vsOnline')}>
+      </Button>
+      <Button onClick={() => handleOption('vsOnline')}>
         Speel online
-      </OptionButton>
-      <BackButton onClick={handleBack}>Terug</BackButton>
-    </OptionsWrapper>
+      </Button>
+      <Button onClick={handleBack}>Terug naar spelletjes</Button>
+    </OptionsContainer>
   );
 };
 
